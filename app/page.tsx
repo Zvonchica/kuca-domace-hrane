@@ -34,11 +34,12 @@ export default function Page() {
   const [showScrollTop, setShowScrollTop] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setShowScrollTop(window.scrollY > 500);
-    window.addEventListener("scroll", onScroll);
-    onScroll();
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 400);
+    };
 
-    return () => window.removeEventListener("scroll", onScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const galleryItems = useMemo<GalleryItem[]>(
@@ -780,10 +781,23 @@ export default function Page() {
       {showScrollTop && (
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          className="fixed bottom-5 right-5 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-[#1f3d2b] text-white shadow-lg"
+          className="animate-[floatSoft_3s_ease-in-out_infinite] sm:animate-none
+  fixed z-40
+  bottom-24 right-4
+  sm:bottom-6 sm:right-6
+  flex h-9 w-9 sm:h-11 sm:w-11
+  items-center justify-center
+  rounded-full
+  bg-white/85 text-[#1f3d2b]
+  shadow-[0_6px_20px_rgba(0,0,0,0.15)]
+  backdrop-blur-md
+  border border-white/30
+  transition
+  hover:-translate-y-0.5 hover:bg-white
+"
           aria-label="Vrati na vrh"
         >
-          <span>↑</span>
+          <span className="text-xs sm:text-base font-semibold">↑</span>
         </button>
       )}
     </div>
