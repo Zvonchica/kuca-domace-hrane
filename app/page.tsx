@@ -366,9 +366,7 @@ export default function Page() {
             </button>
 
             <button
-              onClick={() =>
-                setVideoIndex((prev) => (prev + 1) % videoItems.length)
-              }
+              onClick={() => setVideoIndex((prev) => (prev + 1) % videoItems.length)}
               className="flex h-11 w-11 items-center justify-center rounded-full border border-[#dcdcdc] bg-white text-lg shadow-sm"
               aria-label="Sledeći video"
             >
@@ -377,7 +375,44 @@ export default function Page() {
           </div>
         </div>
 
-        <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {/* MOBILNI: 1 kartica */}
+        <div className="mt-8 block sm:hidden">
+          {getVisible(videoItems, videoIndex, 1).map((item) => (
+            <div key={item.id} className="overflow-hidden rounded-3xl bg-white p-3 shadow-md">
+              <div className="relative aspect-[4/5] rounded-2xl bg-[#e3e3de]">
+                <div className="absolute inset-0 flex items-center justify-center text-sm text-[#666]">
+                  video
+                </div>
+                <div className="absolute bottom-4 left-4 flex h-12 w-12 items-center justify-center rounded-full bg-white/90 text-lg shadow-sm">
+                  <span className="ml-1 text-[#1f3d2b]">▶</span>
+                </div>
+              </div>
+              <div className="mt-3 text-sm font-medium text-[#444]">{item.title}</div>
+              <div className="mt-1 text-sm text-[#666]">{item.desc}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* TABLET: 2 kartice */}
+        <div className="mt-8 hidden gap-4 sm:grid lg:hidden sm:grid-cols-2">
+          {getVisible(videoItems, videoIndex, 2).map((item) => (
+            <div key={item.id} className="overflow-hidden rounded-3xl bg-white p-3 shadow-md">
+              <div className="relative aspect-[4/5] rounded-2xl bg-[#e3e3de]">
+                <div className="absolute inset-0 flex items-center justify-center text-sm text-[#666]">
+                  video
+                </div>
+                <div className="absolute bottom-4 left-4 flex h-12 w-12 items-center justify-center rounded-full bg-white/90 text-lg shadow-sm">
+                  <span className="ml-1 text-[#1f3d2b]">▶</span>
+                </div>
+              </div>
+              <div className="mt-3 text-sm font-medium text-[#444]">{item.title}</div>
+              <div className="mt-1 text-sm text-[#666]">{item.desc}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* DESKTOP: 4 kartice */}
+        <div className="mt-8 hidden gap-4 lg:grid lg:grid-cols-4">
           {getVisible(videoItems, videoIndex, 4).map((item) => (
             <div key={item.id} className="overflow-hidden rounded-3xl bg-white p-3 shadow-md">
               <div className="relative aspect-[4/5] rounded-2xl bg-[#e3e3de]">
@@ -388,9 +423,7 @@ export default function Page() {
                   <span className="ml-1 text-[#1f3d2b]">▶</span>
                 </div>
               </div>
-              <div className="mt-3 text-sm font-medium text-[#444]">
-                {item.title}
-              </div>
+              <div className="mt-3 text-sm font-medium text-[#444]">{item.title}</div>
               <div className="mt-1 text-sm text-[#666]">{item.desc}</div>
             </div>
           ))}
@@ -407,8 +440,8 @@ export default function Page() {
               Galerija obroka
             </h2>
             <p className="mt-3 max-w-2xl text-[#555]">
-              Velike fotografije hrane, serviranja, pakovanja i detalja koji
-              grade poverenje i bude apetit.
+              Velike fotografije hrane, serviranja, pakovanja i detalja koji grade
+              poverenje i bude apetit.
             </p>
           </div>
 
@@ -424,9 +457,7 @@ export default function Page() {
             </button>
 
             <button
-              onClick={() =>
-                setGalleryIndex((prev) => (prev + 1) % galleryItems.length)
-              }
+              onClick={() => setGalleryIndex((prev) => (prev + 1) % galleryItems.length)}
               className="flex h-11 w-11 items-center justify-center rounded-full border border-[#dcdcdc] bg-white text-lg shadow-sm"
               aria-label="Sledeća slika"
             >
@@ -435,7 +466,32 @@ export default function Page() {
           </div>
         </div>
 
-        <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {/* MOBILNI: 1 kartica */}
+        <div className="mt-8 block sm:hidden">
+          {getVisible(galleryItems, galleryIndex, 1).map((item) => (
+            <div key={item.id} className="overflow-hidden rounded-3xl bg-white p-3 shadow-md">
+              <div className="aspect-[4/5] rounded-2xl bg-[#e3e3de]" />
+              <div className="mt-3 text-sm text-[#666]">
+                {item.label} — obrok / posluženje / detalj
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* TABLET: 2 kartice */}
+        <div className="mt-8 hidden gap-4 sm:grid lg:hidden sm:grid-cols-2">
+          {getVisible(galleryItems, galleryIndex, 2).map((item) => (
+            <div key={item.id} className="overflow-hidden rounded-3xl bg-white p-3 shadow-md">
+              <div className="aspect-[4/5] rounded-2xl bg-[#e3e3de]" />
+              <div className="mt-3 text-sm text-[#666]">
+                {item.label} — obrok / posluženje / detalj
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* DESKTOP: 4 kartice */}
+        <div className="mt-8 hidden gap-4 lg:grid lg:grid-cols-4">
           {getVisible(galleryItems, galleryIndex, 4).map((item) => (
             <div key={item.id} className="overflow-hidden rounded-3xl bg-white p-3 shadow-md">
               <div className="aspect-[4/5] rounded-2xl bg-[#e3e3de]" />
