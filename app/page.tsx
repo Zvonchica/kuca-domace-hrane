@@ -512,76 +512,79 @@ export default function Page() {
       </section>
 
       <section id="onama" className="py-10 sm:py-12">
-  <div className="relative w-full overflow-hidden">
-    <div
-      className="absolute inset-0 bg-cover bg-center"
-      style={{ backgroundImage: "url('/o-nama-hrana.jpg')" }}
-    />
+        <div className="relative w-full overflow-hidden">
+          <div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: "url('/o-nama-hrana.jpg')" }}
+          />
 
-    <div className="absolute inset-0 bg-black/25" />
-    <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/20 to-black/30" />
+          <div className="absolute inset-0 bg-black/35 sm:bg-black/30" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/20 to-black/45 sm:from-black/10 sm:via-black/20 sm:to-black/35" />
 
-    <div className="h-[620px] w-full sm:h-[700px] md:h-[760px] lg:h-[820px]" />
+          <div className="h-[760px] w-full sm:h-[720px] lg:h-[760px]" />
 
-    <div className="absolute inset-0 flex items-center justify-center px-4 sm:px-6 lg:px-10">
-      <div className="w-full max-w-[92%] text-center text-white sm:max-w-2xl lg:max-w-3xl -mt-4 sm:-mt-6 lg:-mt-10">
-        <div
-          className="mb-4 text-xs uppercase tracking-[0.2em] text-white/80 sm:mb-5 sm:text-sm"
-          style={{ textShadow: "0 2px 10px rgba(0,0,0,0.45)" }}
-        >
-          O nama
+          <div className="absolute inset-0 flex items-end sm:items-center justify-center px-4 pb-6 sm:px-6 sm:pb-0 lg:px-10">
+            <div className="w-full max-w-3xl rounded-2xl bg-black/35 p-5 backdrop-blur-[2px] sm:rounded-none sm:bg-transparent sm:p-0">
+              <div className="w-full text-left text-white sm:text-center">
+                <div
+                  className="mb-3 text-[11px] uppercase tracking-[0.2em] text-white/75 sm:mb-4 sm:text-sm"
+                  style={{ textShadow: "0 2px 10px rgba(0,0,0,0.45)" }}
+                >
+                  O nama
+                </div>
+
+                <h2
+                  className="max-w-md text-3xl font-semibold leading-tight tracking-tight sm:mx-auto sm:max-w-2xl sm:text-4xl md:text-5xl lg:text-6xl"
+                  style={{ textShadow: "0 3px 18px rgba(0,0,0,0.55)" }}
+                >
+                  Domaća kuhinja koja se pamti
+                </h2>
+
+                <p
+                  className="mt-4 max-w-md text-lg leading-7 text-white/95 sm:mx-auto sm:max-w-2xl sm:text-xl sm:leading-8"
+                  style={{ textShadow: "0 2px 12px rgba(0,0,0,0.45)" }}
+                >
+                  Hrana pripremljena sa pažnjom, iz kuhinje u kojoj se kuva kako treba.
+                </p>
+
+                <div
+                  className="mt-5 max-w-md space-y-4 text-base leading-7 text-white/90 sm:mx-auto sm:mt-6 sm:max-w-2xl sm:space-y-5 sm:text-lg sm:leading-8 lg:max-w-3xl"
+                  style={{ textShadow: "0 2px 10px rgba(0,0,0,0.40)" }}
+                >
+                  <p>
+                    Ova kuhinja nastala je iz navike da se za stolom okuplja uz dobru,
+                    domaću hranu — onu koja se pamti.
+                  </p>
+
+                  <p>
+                    Baka koja kuva stoji iza svakog obroka — sa iskustvom i sigurnošću
+                    koja se ne može naučiti preko noći.
+                  </p>
+
+                  <p>
+                    Znanje iz tradicionalne kuhinje prilagodili smo tempu modernih firmi,
+                    bez kompromisa kada je u pitanju kvalitet.
+                  </p>
+
+                  <p className="font-medium text-white">
+                    Pouzdan, domaći ručak na koji možete da se oslonite — svaki dan.
+                  </p>
+                </div>
+
+                <div className="mt-7 sm:mt-10 lg:mt-12 flex justify-start sm:justify-center">
+                  <a
+                    href="#ponuda"
+                    className="inline-flex min-h-[52px] items-center justify-center rounded-lg bg-[#1f3d2b] px-7 py-3.5 text-base font-semibold text-white shadow-md transition hover:bg-[#28543c] hover:-translate-y-0.5 sm:px-8 sm:py-4 sm:text-lg"
+                  >
+                    Pogledajte ponudu
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+      </section>
 
-        <h2
-          className="text-3xl font-semibold leading-tight tracking-tight sm:text-4xl md:text-5xl lg:text-6xl"
-          style={{ textShadow: "0 3px 18px rgba(0,0,0,0.55)" }}
-        >
-          Domaća kuhinja koja se pamti
-        </h2>
-
-        <p
-          className="mx-auto mt-4 max-w-2xl text-lg leading-8 text-white/95 sm:mt-5 sm:text-xl md:text-2xl"
-          style={{ textShadow: "0 2px 12px rgba(0,0,0,0.45)" }}
-        >
-          Hrana pripremljena sa pažnjom, iz kuhinje u kojoj se kuva kako treba.
-        </p>
-
-        <div
-          className="mx-auto mt-6 max-w-md space-y-4 text-base leading-7 text-white/90 sm:mt-8 sm:max-w-xl sm:space-y-5 sm:text-lg sm:leading-8 md:max-w-2xl md:text-xl lg:max-w-3xl"
-          style={{ textShadow: "0 2px 10px rgba(0,0,0,0.40)" }}
-        >
-          <p>
-            Ova kuhinja nastala je iz navike da se za stolom okuplja uz dobru,
-            domaću hranu — onu koja se pamti.
-          </p>
-
-          <p>
-            Baka koja kuva stoji iza svakog obroka — sa iskustvom i sigurnošću
-            koja se ne može naučiti preko noći.
-          </p>
-
-          <p>
-            Znanje iz tradicionalne kuhinje prilagodili smo tempu modernih firmi,
-            bez kompromisa kada je u pitanju kvalitet.
-          </p>
-
-          <p className="font-medium text-white">
-            Pouzdan, domaći ručak na koji možete da se oslonite — svaki dan.
-          </p>
-        </div>
-
-        <div className="mt-10 sm:mt-12 lg:mt-14 flex justify-center">
-          <a
-            href="#ponuda"
-            className="inline-block rounded-lg bg-[#1f3d2b] px-8 py-4 text-lg font-semibold text-white shadow-md transition hover:bg-[#28543c] hover:-translate-y-0.5"
-          >
-            Pogledajte ponudu
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
       <section
         id="faq"
         className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8"
