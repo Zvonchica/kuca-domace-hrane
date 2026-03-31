@@ -17,17 +17,21 @@ export default function Page() {
   return (
     <div className="min-h-screen bg-[#fafaf8] text-[#2f2f2f]">
       <Header />
-      <Hero />
-      <Kako />
-      <Ponuda />
-      <Video />
-      <Galerija />
-      <Meni />
-      <Recenzije />
-      <Onama />
-      <Faq />
-      <Kontakt />
-      <SocialStrip />
+
+      <main>
+        <Hero />
+        <Kako />
+        <Ponuda />
+        <Video />
+        <Galerija />
+        <Meni />
+        <Recenzije />
+        <Onama />
+        <Faq />
+        <Kontakt />
+        <SocialStrip />
+      </main>
+
       <Footer />
       <ScrollToTop />
     </div>

@@ -44,7 +44,7 @@ export default function Hero() {
             </a>
           </div>
 
-          <p className="mt-4 text-base text-white/75">
+          <p className="mt-4 text-base text-white/90">
             Bez obaveze • Odgovor u toku dana
           </p>
         </div>

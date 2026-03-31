@@ -74,7 +74,7 @@ export default function Video() {
             className="min-w-[82%] snap-start overflow-hidden rounded-3xl bg-white p-3 shadow-md sm:min-w-[48%] lg:min-w-[31%] xl:min-w-[23.5%]"
           >
             <div className="relative aspect-[4/5] rounded-2xl bg-[#e3e3de]">
-              <div className="absolute inset-0 flex items-center justify-center text-sm text-[#666]">
+              <div className="absolute inset-0 flex items-center justify-center text-sm text-[#222]">
                 video
               </div>
 
@@ -86,7 +86,7 @@ export default function Video() {
             </div>
 
             <div className="mt-4 text-base font-semibold text-[#333]">{item.title}</div>
-            <div className="mt-1 text-sm leading-6 text-[#666]">{item.desc}</div>
+            <div className="mt-1 text-sm leading-6 text-[#222]">{item.desc}</div>
           </article>
         ))}
       </div>

@@ -23,7 +23,7 @@ export default function Header() {
           <div className="truncate text-lg font-semibold tracking-tight sm:text-[20px]">
             Kuća domaće hrane
           </div>
-          <div className="truncate text-xs text-[#777]">
+          <div className="truncate text-xs text-[#333]">
             Dnevni i nedeljni obroci za male firme
           </div>
         </div>
