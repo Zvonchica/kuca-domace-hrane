@@ -1,16 +1,27 @@
+import Image from "next/image";
+
 export default function Hero() {
   return (
     <section className="relative flex min-h-[560px] items-center justify-center overflow-hidden sm:min-h-[620px] lg:min-h-[720px]">
-      <div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: "url('/hero-food.webp')" }}
+      
+      {/* SLIKA */}
+      <Image
+        src="/hero-food.webp"
+        alt="Domaća kuvana hrana"
+        fill
+        priority
+        sizes="100vw"
+        className="object-cover"
       />
 
+      {/* OVERLAY */}
       <div className="absolute inset-0 bg-black/50" />
       <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-black/50" />
 
+      {/* SADRŽAJ */}
       <div className="relative z-10 mx-auto flex w-full items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
         <div className="max-w-3xl text-center text-white">
+          
           <h1 className="text-[38px] font-semibold leading-[1.05] tracking-tight sm:text-5xl lg:text-[64px] xl:text-[72px]">
             Ručak za vaš tim —
             <br />
@@ -40,6 +51,7 @@ export default function Hero() {
           <p className="mt-4 text-base text-white/75">
             Bez obaveze • Odgovor u toku dana
           </p>
+
         </div>
       </div>
     </section>
