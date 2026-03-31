@@ -3,7 +3,7 @@ export default function Hero() {
     <section className="relative flex min-h-[560px] items-center justify-center overflow-hidden sm:min-h-[620px] lg:min-h-[720px]">
       <div
         className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: "url('/hero-food.jpg')" }}
+        style={{ backgroundImage: "url('/hero-food.webp')" }}
       />
 
       <div className="absolute inset-0 bg-black/50" />

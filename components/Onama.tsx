@@ -4,7 +4,7 @@ export default function Onama() {
       <div className="relative w-full overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: "url('/o-nama-hrana.jpg')" }}
+          style={{ backgroundImage: "url('/o-nama-hrana.webp')" }}
         />
 
         <div className="absolute inset-0 bg-black/35 sm:bg-black/30" />
