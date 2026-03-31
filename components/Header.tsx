@@ -17,23 +17,26 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-30 border-b border-[#e7e7e2] bg-white/90 backdrop-blur">
+    <header className="sticky top-0 z-30 border-b border-[#e7e7e2] bg-white/90 backdrop-blur-md">
       <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-        <div className="min-w-0 pr-3">
-          <div className="truncate text-lg font-semibold tracking-tight sm:text-[20px]">
+        <a
+          href="#"
+          className="min-w-0 pr-3 outline-none transition-opacity hover:opacity-90 focus-visible:rounded-md focus-visible:ring-2 focus-visible:ring-[#1f3d2b]/30"
+        >
+          <div className="truncate text-base font-semibold tracking-tight text-[#1f1f1c] sm:text-[20px]">
             Kuća domaće hrane
           </div>
-          <div className="truncate text-xs text-[#333]">
+          <div className="truncate text-[11px] text-[#5a5a55] sm:text-xs">
             Dnevni i nedeljni obroci za male firme
           </div>
-        </div>
+        </a>
 
-        <nav className="hidden items-center gap-5 text-sm lg:flex xl:gap-6">
+        <nav className="hidden items-center gap-5 text-sm text-[#353530] lg:flex xl:gap-6">
           {navItems.map((item) => (
             <a
               key={item.href}
               href={item.href}
-              className="whitespace-nowrap transition hover:text-[#1f3d2b]"
+              className="whitespace-nowrap rounded-md px-1 py-1 transition-colors duration-200 hover:text-[#1f3d2b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1f3d2b]/30"
             >
               {item.label}
             </a>
@@ -43,39 +46,51 @@ export default function Header() {
         <div className="hidden lg:block">
           <a
             href="#kontakt"
-            className="rounded-lg bg-[#1f3d2b] px-5 py-3 text-white transition hover:bg-[#28543c]"
+            className="inline-flex items-center justify-center rounded-lg bg-[#1f3d2b] px-5 py-3 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:bg-[#28543c] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1f3d2b]/30"
           >
-            Ponuda
+            Zatražite ponudu
           </a>
         </div>
 
         <button
+          type="button"
+          aria-label={mobileMenuOpen ? "Zatvori meni" : "Otvori meni"}
+          aria-expanded={mobileMenuOpen}
+          aria-controls="mobile-navigation"
           onClick={() => setMobileMenuOpen((prev) => !prev)}
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-[#ddddda] bg-white lg:hidden"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-[#ddddda] bg-white text-[#2f2f2f] shadow-sm transition-colors duration-200 hover:border-[#cfcfc8] hover:bg-[#f8f8f5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1f3d2b]/30 lg:hidden"
         >
-          {mobileMenuOpen ? "✕" : "☰"}
+          <span className="text-lg leading-none">
+            {mobileMenuOpen ? "✕" : "☰"}
+          </span>
         </button>
       </div>
 
       {mobileMenuOpen && (
-        <div className="border-t border-[#ecece7] bg-white lg:hidden">
-          <div className="mx-auto flex w-full max-w-7xl flex-col px-4 py-4 sm:px-6 lg:px-8">
-            {navItems.map((item) => (
-              <a
-                key={item.href}
-                href={item.href}
-                onClick={() => setMobileMenuOpen(false)}
-                className="border-b border-[#f0f0eb] py-3 text-sm last:border-b-0"
-              >
-                {item.label}
-              </a>
-            ))}
+        <div
+          id="mobile-navigation"
+          className="border-t border-[#ecece7] bg-white/95 lg:hidden"
+        >
+          <div className="mx-auto flex w-full max-w-7xl flex-col px-4 py-4 sm:px-6">
+            <nav className="flex flex-col">
+              {navItems.map((item) => (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="rounded-md border-b border-[#f0f0eb] py-3 text-sm text-[#2f2f2f] transition-colors duration-200 hover:text-[#1f3d2b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1f3d2b]/30 last:border-b-0"
+                >
+                  {item.label}
+                </a>
+              ))}
+            </nav>
+
             <a
               href="#kontakt"
               onClick={() => setMobileMenuOpen(false)}
-              className="mt-4 rounded-lg bg-[#1f3d2b] px-5 py-3 text-center text-white"
+              className="mt-4 inline-flex items-center justify-center rounded-lg bg-[#1f3d2b] px-5 py-3 text-center text-sm font-medium text-white shadow-sm transition-all duration-200 hover:bg-[#28543c] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1f3d2b]/30"
             >
-              Ponuda
+              Zatražite ponudu
             </a>
           </div>
         </div>
