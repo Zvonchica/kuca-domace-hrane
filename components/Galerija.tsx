@@ -121,7 +121,7 @@ export default function Galerija() {
         src={item.src}
         alt={item.alt}
         fill
-        sizes="(max-width: 767px) 84vw, (max-width: 1023px) 52vw, 34vw"
+        sizes="(max-width: 768px) 90vw, (max-width: 1200px) 50vw, 400px"
         className={mode === "cover" ? "object-cover" : "object-contain"}
         onError={() =>
           setFailedImages((prev) => ({
@@ -133,7 +133,9 @@ export default function Galerija() {
     );
   };
 
-  const getDesktopCardStyle = (diff: number) => {
+  const getCardStyle = (diff: number, isDesktop: boolean) => {
+    const shift = isDesktop ? SHIFT_DESKTOP : SHIFT_TABLET;
+
     const config: Record<
       number,
       {
@@ -144,13 +146,21 @@ export default function Galerija() {
         opacity: number;
         zIndex: number;
       }
-    > = {
-      [-2]: { x: -360, y: 34, rotate: -5, scale: 0.84, opacity: 0.35, zIndex: 10 },
-      [-1]: { x: -215, y: 16, rotate: -2.5, scale: 0.92, opacity: 0.72, zIndex: 20 },
-      [0]: { x: 0, y: 0, rotate: 0, scale: 1, opacity: 1, zIndex: 40 },
-      [1]: { x: 215, y: 16, rotate: 2.5, scale: 0.92, opacity: 0.72, zIndex: 20 },
-      [2]: { x: 360, y: 34, rotate: 5, scale: 0.84, opacity: 0.35, zIndex: 10 },
-    };
+    > = isDesktop
+      ? {
+          [-2]: { x: -360, y: 34, rotate: -5, scale: 0.84, opacity: 0.35, zIndex: 10 },
+          [-1]: { x: -215, y: 16, rotate: -2.5, scale: 0.92, opacity: 0.72, zIndex: 20 },
+          [0]: { x: 0, y: 0, rotate: 0, scale: 1, opacity: 1, zIndex: 40 },
+          [1]: { x: 215, y: 16, rotate: 2.5, scale: 0.92, opacity: 0.72, zIndex: 20 },
+          [2]: { x: 360, y: 34, rotate: 5, scale: 0.84, opacity: 0.35, zIndex: 10 },
+        }
+      : {
+          [-2]: { x: -250, y: 24, rotate: -4, scale: 0.82, opacity: 0.34, zIndex: 10 },
+          [-1]: { x: -145, y: 12, rotate: -2, scale: 0.91, opacity: 0.72, zIndex: 20 },
+          [0]: { x: 0, y: 0, rotate: 0, scale: 1, opacity: 1, zIndex: 40 },
+          [1]: { x: 145, y: 12, rotate: 2, scale: 0.91, opacity: 0.72, zIndex: 20 },
+          [2]: { x: 250, y: 24, rotate: 4, scale: 0.82, opacity: 0.34, zIndex: 10 },
+        };
 
     const item = config[diff];
 
@@ -159,37 +169,7 @@ export default function Galerija() {
       top: "50%",
       zIndex: item.zIndex,
       opacity: item.opacity,
-      transform: `translate(-50%, -50%) translateX(${item.x + SHIFT_DESKTOP}px) translateY(${item.y}px) rotate(${item.rotate}deg) scale(${item.scale})`,
-    };
-  };
-
-  const getTabletCardStyle = (diff: number) => {
-    const config: Record<
-      number,
-      {
-        x: number;
-        y: number;
-        rotate: number;
-        scale: number;
-        opacity: number;
-        zIndex: number;
-      }
-    > = {
-      [-2]: { x: -250, y: 24, rotate: -4, scale: 0.82, opacity: 0.34, zIndex: 10 },
-      [-1]: { x: -145, y: 12, rotate: -2, scale: 0.91, opacity: 0.72, zIndex: 20 },
-      [0]: { x: 0, y: 0, rotate: 0, scale: 1, opacity: 1, zIndex: 40 },
-      [1]: { x: 145, y: 12, rotate: 2, scale: 0.91, opacity: 0.72, zIndex: 20 },
-      [2]: { x: 250, y: 24, rotate: 4, scale: 0.82, opacity: 0.34, zIndex: 10 },
-    };
-
-    const item = config[diff];
-
-    return {
-      left: "50%",
-      top: "50%",
-      zIndex: item.zIndex,
-      opacity: item.opacity,
-      transform: `translate(-50%, -50%) translateX(${item.x + SHIFT_TABLET}px) translateY(${item.y}px) rotate(${item.rotate}deg) scale(${item.scale})`,
+      transform: `translate(-50%, -50%) translateX(${item.x + shift}px) translateY(${item.y}px) rotate(${item.rotate}deg) scale(${item.scale})`,
     };
   };
 
@@ -198,44 +178,58 @@ export default function Galerija() {
       <section id="galerija" className="overflow-hidden bg-[#faf8f4] py-16 sm:py-20 lg:py-24">
         <div className="mx-auto max-w-[1380px] px-4 sm:px-6 lg:px-8">
           <div
-            className="mx-auto max-w-4xl text-center"
-            style={{
-              transform: `translateX(${SHIFT_DESKTOP}px)`,
-            }}
+            className="mx-auto hidden max-w-4xl text-center md:block lg:hidden"
+            style={{ transform: `translateX(${SHIFT_TABLET}px)` }}
           >
-            <div className="lg:hidden" style={{ transform: `translateX(${SHIFT_TABLET - SHIFT_DESKTOP}px)` }}>
-              <p className="text-xs font-medium uppercase tracking-[0.28em] text-[#29543a]/75 sm:text-sm">
-                Galerija
-              </p>
+            <p className="text-xs font-medium uppercase tracking-[0.28em] text-[#29543a]/75 sm:text-sm">
+              Galerija
+            </p>
 
-              <h2 className="mt-2 text-3xl font-semibold tracking-tight text-[#1f1f1c] sm:text-4xl lg:text-5xl">
-                Kako izgleda naša domaća hrana
-              </h2>
+            <h2 className="mt-2 text-3xl font-semibold tracking-tight text-[#1f1f1c] sm:text-4xl lg:text-5xl">
+              Kako izgleda naša domaća hrana
+            </h2>
 
-              <p className="mx-auto mt-3 max-w-3xl text-base leading-relaxed text-[#5f5a53] sm:text-lg">
-                Fotografije obroka, posluženja i pakovanja koje ostavljaju uredan,
-                topao i profesionalan utisak.
-              </p>
-            </div>
+            <p className="mx-auto mt-3 max-w-3xl text-base leading-relaxed text-[#5f5a53] sm:text-lg">
+              Fotografije obroka, posluženja i pakovanja koje ostavljaju uredan,
+              topao i profesionalan utisak.
+            </p>
+          </div>
 
-            <div className="hidden lg:block">
-              <p className="text-xs font-medium uppercase tracking-[0.28em] text-[#29543a]/75 sm:text-sm">
-                Galerija
-              </p>
+          <div
+            className="mx-auto hidden max-w-4xl text-center lg:block"
+            style={{ transform: `translateX(${SHIFT_DESKTOP}px)` }}
+          >
+            <p className="text-xs font-medium uppercase tracking-[0.28em] text-[#29543a]/75 sm:text-sm">
+              Galerija
+            </p>
 
-              <h2 className="mt-2 text-3xl font-semibold tracking-tight text-[#1f1f1c] sm:text-4xl lg:text-5xl">
-                Kako izgleda naša domaća hrana
-              </h2>
+            <h2 className="mt-2 text-3xl font-semibold tracking-tight text-[#1f1f1c] sm:text-4xl lg:text-5xl">
+              Kako izgleda naša domaća hrana
+            </h2>
 
-              <p className="mx-auto mt-3 max-w-3xl text-base leading-relaxed text-[#5f5a53] sm:text-lg">
-                Fotografije obroka, posluženja i pakovanja koje ostavljaju uredan,
-                topao i profesionalan utisak.
-              </p>
-            </div>
+            <p className="mx-auto mt-3 max-w-3xl text-base leading-relaxed text-[#5f5a53] sm:text-lg">
+              Fotografije obroka, posluženja i pakovanja koje ostavljaju uredan,
+              topao i profesionalan utisak.
+            </p>
+          </div>
+
+          <div className="mx-auto max-w-4xl text-center md:hidden">
+            <p className="text-xs font-medium uppercase tracking-[0.28em] text-[#29543a]/75 sm:text-sm">
+              Galerija
+            </p>
+
+            <h2 className="mt-2 text-3xl font-semibold tracking-tight text-[#1f1f1c] sm:text-4xl">
+              Kako izgleda naša domaća hrana
+            </h2>
+
+            <p className="mx-auto mt-3 max-w-3xl text-base leading-relaxed text-[#5f5a53] sm:text-lg">
+              Fotografije obroka, posluženja i pakovanja koje ostavljaju uredan,
+              topao i profesionalan utisak.
+            </p>
           </div>
 
           <div className="relative mt-14 hidden md:block">
-            <div className="pointer-events-none absolute left-1/2 top-[46%] h-[220px] w-[760px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#29543a]/[0.05] blur-3xl lg:h-[260px] lg:w-[920px]" />
+            <div className="pointer-events-none absolute left-1/2 top-[46%] h-[200px] w-[680px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#29543a]/[0.04] blur-2xl lg:h-[240px] lg:w-[860px]" />
 
             <div className="relative mx-auto h-[340px] w-full max-w-[1180px] lg:h-[390px]">
               {galleryItems.map((item, index) => {
@@ -261,15 +255,16 @@ export default function Galerija() {
                         : `Prikaži sliku ${index + 1}`
                     }
                     className={[
-                      "group absolute hidden overflow-hidden rounded-[30px] border border-[#29543a]/10 bg-white shadow-[0_18px_50px_rgba(20,35,24,0.08)] transition-all duration-500 ease-out md:block lg:hidden",
+                      "group absolute overflow-hidden rounded-[30px] border border-[#29543a]/10 bg-white transition-all duration-500 ease-out",
+                      "shadow-[0_12px_30px_rgba(20,35,24,0.07)]",
+                      "md:h-[220px] md:w-[320px] lg:h-[260px] lg:w-[390px]",
                       isActive
-                        ? "ring-1 ring-[#29543a]/15 shadow-[0_24px_65px_rgba(20,35,24,0.12)]"
+                        ? "ring-1 ring-[#29543a]/15 shadow-[0_16px_38px_rgba(20,35,24,0.10)]"
                         : "hover:opacity-90",
-                      "h-[220px] w-[320px]",
                     ].join(" ")}
-                    style={getTabletCardStyle(diff)}
+                    style={getCardStyle(diff, true)}
                   >
-                    <div className="relative h-full w-full">
+                    <div className="relative h-full w-full md:hidden">
                       {renderImageOrPlaceholder(item, index, "cover")}
                       <div
                         className={[
@@ -280,42 +275,20 @@ export default function Galerija() {
                         ].join(" ")}
                       />
                     </div>
-                  </button>
-                );
-              })}
 
-              {galleryItems.map((item, index) => {
-                const diff = getRelativePosition(index);
-                const isActive = diff === 0;
+                    <div className="relative hidden h-full w-full md:block lg:hidden">
+                      {renderImageOrPlaceholder(item, index, "cover")}
+                      <div
+                        className={[
+                          "absolute inset-0 transition duration-300",
+                          isActive
+                            ? "bg-[linear-gradient(to_top,rgba(14,28,18,0.08),rgba(14,28,18,0.01))]"
+                            : "bg-[linear-gradient(to_top,rgba(14,28,18,0.15),rgba(14,28,18,0.04))]",
+                        ].join(" ")}
+                      />
+                    </div>
 
-                if (Math.abs(diff) > 2) return null;
-
-                return (
-                  <button
-                    key={`${item.src}-desktop`}
-                    type="button"
-                    onClick={() => {
-                      if (isActive) {
-                        openLightbox(index);
-                      } else {
-                        setActiveIndex(index);
-                      }
-                    }}
-                    aria-label={
-                      isActive
-                        ? `Otvori sliku ${index + 1}`
-                        : `Prikaži sliku ${index + 1}`
-                    }
-                    className={[
-                      "group absolute hidden overflow-hidden rounded-[30px] border border-[#29543a]/10 bg-white shadow-[0_18px_50px_rgba(20,35,24,0.08)] transition-all duration-500 ease-out lg:block",
-                      isActive
-                        ? "ring-1 ring-[#29543a]/15 shadow-[0_24px_65px_rgba(20,35,24,0.12)]"
-                        : "hover:opacity-90",
-                      "h-[260px] w-[390px]",
-                    ].join(" ")}
-                    style={getDesktopCardStyle(diff)}
-                  >
-                    <div className="relative h-full w-full">
+                    <div className="relative hidden h-full w-full lg:block">
                       {renderImageOrPlaceholder(item, index, "cover")}
                       <div
                         className={[
@@ -332,54 +305,49 @@ export default function Galerija() {
             </div>
 
             <div
-              className="mt-5 flex items-center justify-center gap-3"
-              style={{
-                transform: `translateX(${SHIFT_DESKTOP}px)`,
-              }}
+              className="mt-5 hidden items-center justify-center gap-3 md:flex lg:hidden"
+              style={{ transform: `translateX(${SHIFT_TABLET}px)` }}
             >
-              <div className="lg:hidden" style={{ transform: `translateX(${SHIFT_TABLET - SHIFT_DESKTOP}px)` }}>
-                <div className="flex items-center justify-center gap-3">
-                  <button
-                    type="button"
-                    onClick={prevSlide}
-                    className="flex h-12 w-12 items-center justify-center rounded-full border border-[#29543a]/15 bg-white text-xl text-[#29543a] shadow-[0_8px_24px_rgba(20,35,24,0.06)] transition hover:-translate-y-0.5 hover:bg-[#f3f7f3]"
-                    aria-label="Prethodna slika"
-                  >
-                    ←
-                  </button>
+              <button
+                type="button"
+                onClick={prevSlide}
+                className="flex h-12 w-12 items-center justify-center rounded-full border border-[#29543a]/15 bg-white text-xl text-[#29543a] shadow-[0_6px_18px_rgba(20,35,24,0.05)] transition hover:-translate-y-0.5 hover:bg-[#f3f7f3]"
+                aria-label="Prethodna slika"
+              >
+                ←
+              </button>
 
-                  <button
-                    type="button"
-                    onClick={nextSlide}
-                    className="flex h-12 w-12 items-center justify-center rounded-full border border-[#29543a]/15 bg-white text-xl text-[#29543a] shadow-[0_8px_24px_rgba(20,35,24,0.06)] transition hover:-translate-y-0.5 hover:bg-[#f3f7f3]"
-                    aria-label="Sledeća slika"
-                  >
-                    →
-                  </button>
-                </div>
-              </div>
+              <button
+                type="button"
+                onClick={nextSlide}
+                className="flex h-12 w-12 items-center justify-center rounded-full border border-[#29543a]/15 bg-white text-xl text-[#29543a] shadow-[0_6px_18px_rgba(20,35,24,0.05)] transition hover:-translate-y-0.5 hover:bg-[#f3f7f3]"
+                aria-label="Sledeća slika"
+              >
+                →
+              </button>
+            </div>
 
-              <div className="hidden lg:block">
-                <div className="flex items-center justify-center gap-3">
-                  <button
-                    type="button"
-                    onClick={prevSlide}
-                    className="flex h-12 w-12 items-center justify-center rounded-full border border-[#29543a]/15 bg-white text-xl text-[#29543a] shadow-[0_8px_24px_rgba(20,35,24,0.06)] transition hover:-translate-y-0.5 hover:bg-[#f3f7f3]"
-                    aria-label="Prethodna slika"
-                  >
-                    ←
-                  </button>
+            <div
+              className="mt-5 hidden items-center justify-center gap-3 lg:flex"
+              style={{ transform: `translateX(${SHIFT_DESKTOP}px)` }}
+            >
+              <button
+                type="button"
+                onClick={prevSlide}
+                className="flex h-12 w-12 items-center justify-center rounded-full border border-[#29543a]/15 bg-white text-xl text-[#29543a] shadow-[0_6px_18px_rgba(20,35,24,0.05)] transition hover:-translate-y-0.5 hover:bg-[#f3f7f3]"
+                aria-label="Prethodna slika"
+              >
+                ←
+              </button>
 
-                  <button
-                    type="button"
-                    onClick={nextSlide}
-                    className="flex h-12 w-12 items-center justify-center rounded-full border border-[#29543a]/15 bg-white text-xl text-[#29543a] shadow-[0_8px_24px_rgba(20,35,24,0.06)] transition hover:-translate-y-0.5 hover:bg-[#f3f7f3]"
-                    aria-label="Sledeća slika"
-                  >
-                    →
-                  </button>
-                </div>
-              </div>
+              <button
+                type="button"
+                onClick={nextSlide}
+                className="flex h-12 w-12 items-center justify-center rounded-full border border-[#29543a]/15 bg-white text-xl text-[#29543a] shadow-[0_6px_18px_rgba(20,35,24,0.05)] transition hover:-translate-y-0.5 hover:bg-[#f3f7f3]"
+                aria-label="Sledeća slika"
+              >
+                →
+              </button>
             </div>
           </div>
 
@@ -391,7 +359,7 @@ export default function Galerija() {
                     key={item.src}
                     type="button"
                     onClick={() => openLightbox(index)}
-                    className="group relative h-[420px] w-[84vw] max-w-[340px] shrink-0 snap-center overflow-hidden rounded-[28px] border border-[#29543a]/10 bg-white shadow-[0_16px_36px_rgba(20,35,24,0.08)]"
+                    className="group relative h-[420px] w-[84vw] max-w-[340px] shrink-0 snap-center overflow-hidden rounded-[28px] border border-[#29543a]/10 bg-white shadow-[0_12px_28px_rgba(20,35,24,0.07)]"
                     aria-label={`Otvori sliku ${index + 1}`}
                   >
                     <div className="relative h-full w-full">
@@ -450,7 +418,7 @@ export default function Galerija() {
             className="relative w-full max-w-6xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="relative mx-auto flex h-[72vh] items-center justify-center overflow-hidden rounded-[30px] bg-[#111] shadow-[0_20px_80px_rgba(0,0,0,0.35)]">
+            <div className="relative mx-auto flex h-[72vh] items-center justify-center overflow-hidden rounded-[30px] bg-[#111] shadow-[0_20px_60px_rgba(0,0,0,0.28)]">
               {failedImages[activeLightboxItem.src] ? (
                 <div className="flex h-full w-full items-center justify-center bg-[linear-gradient(135deg,#f8f6f1_0%,#eef4ee_100%)]">
                   <div className="text-center">
@@ -469,7 +437,6 @@ export default function Galerija() {
                   fill
                   sizes="100vw"
                   className="object-contain"
-                  priority
                   onError={() =>
                     setFailedImages((prev) => ({
                       ...prev,
