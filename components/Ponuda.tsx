@@ -47,7 +47,7 @@ export default function Ponuda() {
   return (
     <section
       id="ponuda"
-      className="mx-auto w-full max-w-7xl px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-8"
+      className="scroll-mt-[80px] mx-auto w-full max-w-7xl px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-8"
     >
       <div className="max-w-3xl">
         <p className="text-sm font-medium uppercase tracking-[0.18em] text-[#1f3d2b]">

@@ -4,9 +4,10 @@ import { useState } from "react";
 
 const navItems = [
   { href: "#kako", label: "Kako funkcioniše" },
+  { href: "#ketering", label: "Ketering" },
   { href: "#ponuda", label: "Ponuda" },
-  { href: "#video", label: "Video" },
   { href: "#galerija", label: "Galerija" },
+  { href: "#video", label: "Video" },
   { href: "#meni", label: "Meni" },
   { href: "#recenzije", label: "Recenzije" },
   { href: "#onama", label: "O nama" },
@@ -17,10 +18,10 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-30 border-b border-[#e7e7e2] bg-white/90 backdrop-blur-md">
+    <header className="sticky top-0 z-50 border-b border-[#e7e7e2] bg-white/90 backdrop-blur-md">
       <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
         <a
-          href="#"
+          href="#kako"
           className="min-w-0 pr-3 outline-none transition-opacity hover:opacity-90 focus-visible:rounded-md focus-visible:ring-2 focus-visible:ring-[#1f3d2b]/30"
         >
           <div className="truncate text-base font-semibold tracking-tight text-[#1f1f1c] sm:text-[20px]">

@@ -147,14 +147,14 @@ export default function Galerija() {
         zIndex: number;
       }
     > = isDesktop
-      ? {
+        ? {
           [-2]: { x: -360, y: 34, rotate: -5, scale: 0.84, opacity: 0.35, zIndex: 10 },
           [-1]: { x: -215, y: 16, rotate: -2.5, scale: 0.92, opacity: 0.72, zIndex: 20 },
           [0]: { x: 0, y: 0, rotate: 0, scale: 1, opacity: 1, zIndex: 40 },
           [1]: { x: 215, y: 16, rotate: 2.5, scale: 0.92, opacity: 0.72, zIndex: 20 },
           [2]: { x: 360, y: 34, rotate: 5, scale: 0.84, opacity: 0.35, zIndex: 10 },
         }
-      : {
+        : {
           [-2]: { x: -250, y: 24, rotate: -4, scale: 0.82, opacity: 0.34, zIndex: 10 },
           [-1]: { x: -145, y: 12, rotate: -2, scale: 0.91, opacity: 0.72, zIndex: 20 },
           [0]: { x: 0, y: 0, rotate: 0, scale: 1, opacity: 1, zIndex: 40 },
@@ -175,7 +175,10 @@ export default function Galerija() {
 
   return (
     <>
-      <section id="galerija" className="overflow-hidden bg-[#faf8f4] py-16 sm:py-20 lg:py-24">
+      <section
+        id="galerija"
+        className="relative z-0 overflow-hidden bg-[#faf8f4] py-12 sm:py-16 lg:py-20"
+      >
         <div className="mx-auto max-w-[1380px] px-4 sm:px-6 lg:px-8">
           <div
             className="mx-auto hidden max-w-4xl text-center md:block lg:hidden"
@@ -228,10 +231,10 @@ export default function Galerija() {
             </p>
           </div>
 
-          <div className="relative mt-14 hidden md:block">
+          <div className="relative mt-10 hidden md:block">
             <div className="pointer-events-none absolute left-1/2 top-[46%] h-[200px] w-[680px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#29543a]/[0.04] blur-2xl lg:h-[240px] lg:w-[860px]" />
 
-            <div className="relative mx-auto h-[340px] w-full max-w-[1180px] lg:h-[390px]">
+            <div className="relative mx-auto h-[300px] w-full max-w-[1280px] lg:h-[360px]">
               {galleryItems.map((item, index) => {
                 const diff = getRelativePosition(index);
                 const isActive = diff === 0;
@@ -257,7 +260,7 @@ export default function Galerija() {
                     className={[
                       "group absolute overflow-hidden rounded-[30px] border border-[#29543a]/10 bg-white transition-all duration-500 ease-out",
                       "shadow-[0_12px_30px_rgba(20,35,24,0.07)]",
-                      "md:h-[220px] md:w-[320px] lg:h-[260px] lg:w-[390px]",
+                      "md:h-[260px] md:w-[380px] lg:h-[320px] lg:w-[480px]",
                       isActive
                         ? "ring-1 ring-[#29543a]/15 shadow-[0_16px_38px_rgba(20,35,24,0.10)]"
                         : "hover:opacity-90",
@@ -377,9 +380,8 @@ export default function Galerija() {
                   key={index}
                   type="button"
                   onClick={() => setActiveIndex(index)}
-                  className={`h-2 w-2 rounded-full transition ${
-                    index === activeIndex ? "bg-[#29543a]" : "bg-[#29543a]/20"
-                  }`}
+                  className={`h-2 w-2 rounded-full transition ${index === activeIndex ? "bg-[#29543a]" : "bg-[#29543a]/20"
+                    }`}
                   aria-label={`Idi na sliku ${index + 1}`}
                 />
               ))}

@@ -1,6 +1,6 @@
 export default function Onama() {
   return (
-    <section id="onama" className="py-10 sm:py-12">
+    <section id="onama" className="scroll-mt-[80px] py-10 sm:py-12">
       <div className="relative w-full overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-center"

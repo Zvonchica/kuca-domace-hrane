@@ -32,7 +32,7 @@ export default function Faq() {
   return (
     <section
       id="faq"
-      className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8"
+      className="scroll-mt-[80px] mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8"
     >
       <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
         Česta pitanja

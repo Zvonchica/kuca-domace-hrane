@@ -22,8 +22,8 @@ export default function Page() {
       <main>
         <Hero />
         <Kako />
-        <Ponuda />
         <Ketering />
+        <Ponuda />
         <Galerija />
         <Video />
         <Meni />
