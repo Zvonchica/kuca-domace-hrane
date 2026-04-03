@@ -45,7 +45,7 @@ export default function Video() {
     setActiveIndex((prev) => wrapIndex(prev + 1, videoItems.length));
   };
 
-  const scrollToCard = (index: number) => {
+  const scrollCardInsideScroller = (index: number) => {
     const desktopScroller = desktopScrollerRef.current;
     const mobileScroller = mobileScrollerRef.current;
 
@@ -54,11 +54,20 @@ export default function Video() {
         `[data-video-index="${index}"]`
       ) as HTMLElement | null;
 
-      desktopCard?.scrollIntoView({
-        behavior: "smooth",
-        inline: "center",
-        block: "nearest",
-      });
+      if (desktopCard) {
+        const scrollerRect = desktopScroller.getBoundingClientRect();
+        const cardRect = desktopCard.getBoundingClientRect();
+
+        const targetLeft =
+          desktopScroller.scrollLeft +
+          (cardRect.left - scrollerRect.left) -
+          (scrollerRect.width / 2 - cardRect.width / 2);
+
+        desktopScroller.scrollTo({
+          left: Math.max(0, targetLeft),
+          behavior: "smooth",
+        });
+      }
     }
 
     if (mobileScroller) {
@@ -66,11 +75,20 @@ export default function Video() {
         `[data-video-index="${index}"]`
       ) as HTMLElement | null;
 
-      mobileCard?.scrollIntoView({
-        behavior: "smooth",
-        inline: "center",
-        block: "nearest",
-      });
+      if (mobileCard) {
+        const scrollerRect = mobileScroller.getBoundingClientRect();
+        const cardRect = mobileCard.getBoundingClientRect();
+
+        const targetLeft =
+          mobileScroller.scrollLeft +
+          (cardRect.left - scrollerRect.left) -
+          (scrollerRect.width / 2 - cardRect.width / 2);
+
+        mobileScroller.scrollTo({
+          left: Math.max(0, targetLeft),
+          behavior: "smooth",
+        });
+      }
     }
   };
 
@@ -87,7 +105,11 @@ export default function Video() {
   };
 
   useEffect(() => {
-    scrollToCard(activeIndex);
+    const id = window.setTimeout(() => {
+      scrollCardInsideScroller(activeIndex);
+    }, 80);
+
+    return () => window.clearTimeout(id);
   }, [activeIndex]);
 
   useEffect(() => {
@@ -234,7 +256,7 @@ export default function Video() {
                   Video priča
                 </p>
 
-                <h2 className="mt-3 max-w-6xl text-[34px] leading-[1.04] font-semibold tracking-tight text-white sm:text-4xl lg:text-5xl">
+                <h2 className="mt-3 max-w-6xl text-[34px] font-semibold leading-[1.04] tracking-tight text-white sm:text-4xl lg:text-5xl">
                   Domaća kuhinja za firme koja izgleda toplo, uredno, kvalitetno i
                   pouzdano u svakom koraku
                 </h2>
