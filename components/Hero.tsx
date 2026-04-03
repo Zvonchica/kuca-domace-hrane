@@ -4,7 +4,7 @@ export default function Hero() {
   return (
     <section className="relative flex min-h-[560px] items-center justify-center overflow-hidden sm:min-h-[620px] lg:min-h-[720px]">
       <Image
-        src="/hero-food.webp"
+        src="/images/hero-food.webp"
         alt="Domaća kuvana hrana"
         fill
         priority

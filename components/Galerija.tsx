@@ -1,84 +1,503 @@
 "use client";
 
+import Image from "next/image";
+import { useEffect, useMemo, useState } from "react";
+
 type GalleryItem = {
-  id: number;
-  label: string;
+  src: string;
+  alt: string;
 };
 
 const galleryItems: GalleryItem[] = [
-  { id: 1, label: "Dnevni meni" },
-  { id: 2, label: "Topli kuvani obroci" },
-  { id: 3, label: "Detalj serviranja" },
-  { id: 4, label: "Pakovanje za dostavu" },
-  { id: 5, label: "Domaća supa ili čorba" },
-  { id: 6, label: "Glavno jelo dana" },
-  { id: 7, label: "Prilog i salata" },
-  { id: 8, label: "Uredna prezentacija" },
-  { id: 9, label: "Kuhinja u radu" },
-  { id: 10, label: "Obrok za tim" },
+  { src: "/images/galerija-1.webp", alt: "Domaći obrok 1" },
+  { src: "/images/galerija-2.webp", alt: "Domaći obrok 2" },
+  { src: "/images/galerija-3.webp", alt: "Domaći obrok 3" },
+  { src: "/images/galerija-4.webp", alt: "Domaći obrok 4" },
+  { src: "/images/galerija-5.webp", alt: "Domaći obrok 5" },
+  { src: "/images/galerija-6.webp", alt: "Domaći obrok 6" },
+  { src: "/images/galerija-7.webp", alt: "Domaći obrok 7" },
+  { src: "/images/galerija-8.webp", alt: "Domaći obrok 8" },
+  { src: "/images/galerija-9.webp", alt: "Domaći obrok 9" },
+  { src: "/images/galerija-10.webp", alt: "Domaći obrok 10" },
 ];
 
-export default function Galerija() {
-  const scrollByAmount = (direction: "left" | "right") => {
-    const track = document.getElementById("gallery-track");
-    if (!track) return;
+const SHIFT_DESKTOP = -52;
+const SHIFT_TABLET = -38;
 
-    const amount = window.innerWidth < 640 ? 280 : window.innerWidth < 1024 ? 360 : 420;
-    track.scrollBy({
-      left: direction === "left" ? -amount : amount,
-      behavior: "smooth",
+export default function Galerija() {
+  const [activeIndex, setActiveIndex] = useState(7);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [failedImages, setFailedImages] = useState<Record<string, boolean>>({});
+
+  const activeLightboxItem = useMemo(() => {
+    if (lightboxIndex === null) return null;
+    return galleryItems[lightboxIndex];
+  }, [lightboxIndex]);
+
+  const prevSlide = () => {
+    setActiveIndex((prev) => (prev - 1 + galleryItems.length) % galleryItems.length);
+  };
+
+  const nextSlide = () => {
+    setActiveIndex((prev) => (prev + 1) % galleryItems.length);
+  };
+
+  const openLightbox = (index: number) => setLightboxIndex(index);
+  const closeLightbox = () => setLightboxIndex(null);
+
+  const prevLightbox = () => {
+    setLightboxIndex((prev) => {
+      if (prev === null) return 0;
+      return (prev - 1 + galleryItems.length) % galleryItems.length;
     });
   };
 
-  return (
-    <section
-      id="galerija"
-      className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8"
-    >
-      <div className="flex flex-col gap-4">
-        <div className="text-center">
-          <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-            Galerija obroka
-          </h2>
-          <p className="mx-auto mt-3 max-w-2xl text-[#555]">
-            Fotografije hrane, detalja i urednog pakovanja koje grade poverenje.
-          </p>
-        </div>
+  const nextLightbox = () => {
+    setLightboxIndex((prev) => {
+      if (prev === null) return 0;
+      return (prev + 1) % galleryItems.length;
+    });
+  };
 
-        <div className="flex justify-center gap-3">
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (lightboxIndex !== null) {
+        if (event.key === "Escape") closeLightbox();
+        if (event.key === "ArrowLeft") prevLightbox();
+        if (event.key === "ArrowRight") nextLightbox();
+        return;
+      }
+
+      if (event.key === "ArrowLeft") prevSlide();
+      if (event.key === "ArrowRight") nextSlide();
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    if (lightboxIndex !== null) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "";
+    };
+  }, [lightboxIndex]);
+
+  const getRelativePosition = (index: number) => {
+    const total = galleryItems.length;
+    let diff = index - activeIndex;
+
+    if (diff > total / 2) diff -= total;
+    if (diff < -total / 2) diff += total;
+
+    return diff;
+  };
+
+  const renderImageOrPlaceholder = (
+    item: GalleryItem,
+    index: number,
+    mode: "cover" | "contain" = "cover"
+  ) => {
+    const failed = failedImages[item.src];
+
+    if (failed) {
+      return (
+        <div className="absolute inset-0 flex items-center justify-center bg-[linear-gradient(135deg,#f8f6f1_0%,#eef4ee_100%)]">
+          <div className="text-center">
+            <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-[#29543a]/70">
+              Fotografija
+            </p>
+            <p className="mt-2 text-sm text-[#2f2f2a]/70">{index + 1}</p>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <Image
+        src={item.src}
+        alt={item.alt}
+        fill
+        sizes="(max-width: 767px) 84vw, (max-width: 1023px) 52vw, 34vw"
+        className={mode === "cover" ? "object-cover" : "object-contain"}
+        onError={() =>
+          setFailedImages((prev) => ({
+            ...prev,
+            [item.src]: true,
+          }))
+        }
+      />
+    );
+  };
+
+  const getDesktopCardStyle = (diff: number) => {
+    const config: Record<
+      number,
+      {
+        x: number;
+        y: number;
+        rotate: number;
+        scale: number;
+        opacity: number;
+        zIndex: number;
+      }
+    > = {
+      [-2]: { x: -360, y: 34, rotate: -5, scale: 0.84, opacity: 0.35, zIndex: 10 },
+      [-1]: { x: -215, y: 16, rotate: -2.5, scale: 0.92, opacity: 0.72, zIndex: 20 },
+      [0]: { x: 0, y: 0, rotate: 0, scale: 1, opacity: 1, zIndex: 40 },
+      [1]: { x: 215, y: 16, rotate: 2.5, scale: 0.92, opacity: 0.72, zIndex: 20 },
+      [2]: { x: 360, y: 34, rotate: 5, scale: 0.84, opacity: 0.35, zIndex: 10 },
+    };
+
+    const item = config[diff];
+
+    return {
+      left: "50%",
+      top: "50%",
+      zIndex: item.zIndex,
+      opacity: item.opacity,
+      transform: `translate(-50%, -50%) translateX(${item.x + SHIFT_DESKTOP}px) translateY(${item.y}px) rotate(${item.rotate}deg) scale(${item.scale})`,
+    };
+  };
+
+  const getTabletCardStyle = (diff: number) => {
+    const config: Record<
+      number,
+      {
+        x: number;
+        y: number;
+        rotate: number;
+        scale: number;
+        opacity: number;
+        zIndex: number;
+      }
+    > = {
+      [-2]: { x: -250, y: 24, rotate: -4, scale: 0.82, opacity: 0.34, zIndex: 10 },
+      [-1]: { x: -145, y: 12, rotate: -2, scale: 0.91, opacity: 0.72, zIndex: 20 },
+      [0]: { x: 0, y: 0, rotate: 0, scale: 1, opacity: 1, zIndex: 40 },
+      [1]: { x: 145, y: 12, rotate: 2, scale: 0.91, opacity: 0.72, zIndex: 20 },
+      [2]: { x: 250, y: 24, rotate: 4, scale: 0.82, opacity: 0.34, zIndex: 10 },
+    };
+
+    const item = config[diff];
+
+    return {
+      left: "50%",
+      top: "50%",
+      zIndex: item.zIndex,
+      opacity: item.opacity,
+      transform: `translate(-50%, -50%) translateX(${item.x + SHIFT_TABLET}px) translateY(${item.y}px) rotate(${item.rotate}deg) scale(${item.scale})`,
+    };
+  };
+
+  return (
+    <>
+      <section id="galerija" className="overflow-hidden bg-[#faf8f4] py-16 sm:py-20 lg:py-24">
+        <div className="mx-auto max-w-[1380px] px-4 sm:px-6 lg:px-8">
+          <div
+            className="mx-auto max-w-4xl text-center"
+            style={{
+              transform: `translateX(${SHIFT_DESKTOP}px)`,
+            }}
+          >
+            <div className="lg:hidden" style={{ transform: `translateX(${SHIFT_TABLET - SHIFT_DESKTOP}px)` }}>
+              <p className="text-xs font-medium uppercase tracking-[0.28em] text-[#29543a]/75 sm:text-sm">
+                Galerija
+              </p>
+
+              <h2 className="mt-2 text-3xl font-semibold tracking-tight text-[#1f1f1c] sm:text-4xl lg:text-5xl">
+                Kako izgleda naša domaća hrana
+              </h2>
+
+              <p className="mx-auto mt-3 max-w-3xl text-base leading-relaxed text-[#5f5a53] sm:text-lg">
+                Fotografije obroka, posluženja i pakovanja koje ostavljaju uredan,
+                topao i profesionalan utisak.
+              </p>
+            </div>
+
+            <div className="hidden lg:block">
+              <p className="text-xs font-medium uppercase tracking-[0.28em] text-[#29543a]/75 sm:text-sm">
+                Galerija
+              </p>
+
+              <h2 className="mt-2 text-3xl font-semibold tracking-tight text-[#1f1f1c] sm:text-4xl lg:text-5xl">
+                Kako izgleda naša domaća hrana
+              </h2>
+
+              <p className="mx-auto mt-3 max-w-3xl text-base leading-relaxed text-[#5f5a53] sm:text-lg">
+                Fotografije obroka, posluženja i pakovanja koje ostavljaju uredan,
+                topao i profesionalan utisak.
+              </p>
+            </div>
+          </div>
+
+          <div className="relative mt-14 hidden md:block">
+            <div className="pointer-events-none absolute left-1/2 top-[46%] h-[220px] w-[760px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#29543a]/[0.05] blur-3xl lg:h-[260px] lg:w-[920px]" />
+
+            <div className="relative mx-auto h-[340px] w-full max-w-[1180px] lg:h-[390px]">
+              {galleryItems.map((item, index) => {
+                const diff = getRelativePosition(index);
+                const isActive = diff === 0;
+
+                if (Math.abs(diff) > 2) return null;
+
+                return (
+                  <button
+                    key={item.src}
+                    type="button"
+                    onClick={() => {
+                      if (isActive) {
+                        openLightbox(index);
+                      } else {
+                        setActiveIndex(index);
+                      }
+                    }}
+                    aria-label={
+                      isActive
+                        ? `Otvori sliku ${index + 1}`
+                        : `Prikaži sliku ${index + 1}`
+                    }
+                    className={[
+                      "group absolute hidden overflow-hidden rounded-[30px] border border-[#29543a]/10 bg-white shadow-[0_18px_50px_rgba(20,35,24,0.08)] transition-all duration-500 ease-out md:block lg:hidden",
+                      isActive
+                        ? "ring-1 ring-[#29543a]/15 shadow-[0_24px_65px_rgba(20,35,24,0.12)]"
+                        : "hover:opacity-90",
+                      "h-[220px] w-[320px]",
+                    ].join(" ")}
+                    style={getTabletCardStyle(diff)}
+                  >
+                    <div className="relative h-full w-full">
+                      {renderImageOrPlaceholder(item, index, "cover")}
+                      <div
+                        className={[
+                          "absolute inset-0 transition duration-300",
+                          isActive
+                            ? "bg-[linear-gradient(to_top,rgba(14,28,18,0.08),rgba(14,28,18,0.01))]"
+                            : "bg-[linear-gradient(to_top,rgba(14,28,18,0.15),rgba(14,28,18,0.04))]",
+                        ].join(" ")}
+                      />
+                    </div>
+                  </button>
+                );
+              })}
+
+              {galleryItems.map((item, index) => {
+                const diff = getRelativePosition(index);
+                const isActive = diff === 0;
+
+                if (Math.abs(diff) > 2) return null;
+
+                return (
+                  <button
+                    key={`${item.src}-desktop`}
+                    type="button"
+                    onClick={() => {
+                      if (isActive) {
+                        openLightbox(index);
+                      } else {
+                        setActiveIndex(index);
+                      }
+                    }}
+                    aria-label={
+                      isActive
+                        ? `Otvori sliku ${index + 1}`
+                        : `Prikaži sliku ${index + 1}`
+                    }
+                    className={[
+                      "group absolute hidden overflow-hidden rounded-[30px] border border-[#29543a]/10 bg-white shadow-[0_18px_50px_rgba(20,35,24,0.08)] transition-all duration-500 ease-out lg:block",
+                      isActive
+                        ? "ring-1 ring-[#29543a]/15 shadow-[0_24px_65px_rgba(20,35,24,0.12)]"
+                        : "hover:opacity-90",
+                      "h-[260px] w-[390px]",
+                    ].join(" ")}
+                    style={getDesktopCardStyle(diff)}
+                  >
+                    <div className="relative h-full w-full">
+                      {renderImageOrPlaceholder(item, index, "cover")}
+                      <div
+                        className={[
+                          "absolute inset-0 transition duration-300",
+                          isActive
+                            ? "bg-[linear-gradient(to_top,rgba(14,28,18,0.08),rgba(14,28,18,0.01))]"
+                            : "bg-[linear-gradient(to_top,rgba(14,28,18,0.15),rgba(14,28,18,0.04))]",
+                        ].join(" ")}
+                      />
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div
+              className="mt-5 flex items-center justify-center gap-3"
+              style={{
+                transform: `translateX(${SHIFT_DESKTOP}px)`,
+              }}
+            >
+              <div className="lg:hidden" style={{ transform: `translateX(${SHIFT_TABLET - SHIFT_DESKTOP}px)` }}>
+                <div className="flex items-center justify-center gap-3">
+                  <button
+                    type="button"
+                    onClick={prevSlide}
+                    className="flex h-12 w-12 items-center justify-center rounded-full border border-[#29543a]/15 bg-white text-xl text-[#29543a] shadow-[0_8px_24px_rgba(20,35,24,0.06)] transition hover:-translate-y-0.5 hover:bg-[#f3f7f3]"
+                    aria-label="Prethodna slika"
+                  >
+                    ←
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={nextSlide}
+                    className="flex h-12 w-12 items-center justify-center rounded-full border border-[#29543a]/15 bg-white text-xl text-[#29543a] shadow-[0_8px_24px_rgba(20,35,24,0.06)] transition hover:-translate-y-0.5 hover:bg-[#f3f7f3]"
+                    aria-label="Sledeća slika"
+                  >
+                    →
+                  </button>
+                </div>
+              </div>
+
+              <div className="hidden lg:block">
+                <div className="flex items-center justify-center gap-3">
+                  <button
+                    type="button"
+                    onClick={prevSlide}
+                    className="flex h-12 w-12 items-center justify-center rounded-full border border-[#29543a]/15 bg-white text-xl text-[#29543a] shadow-[0_8px_24px_rgba(20,35,24,0.06)] transition hover:-translate-y-0.5 hover:bg-[#f3f7f3]"
+                    aria-label="Prethodna slika"
+                  >
+                    ←
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={nextSlide}
+                    className="flex h-12 w-12 items-center justify-center rounded-full border border-[#29543a]/15 bg-white text-xl text-[#29543a] shadow-[0_8px_24px_rgba(20,35,24,0.06)] transition hover:-translate-y-0.5 hover:bg-[#f3f7f3]"
+                    aria-label="Sledeća slika"
+                  >
+                    →
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-10 md:hidden">
+            <div className="-mx-4 overflow-x-auto px-4 [scrollbar-width:none] snap-x snap-mandatory [&::-webkit-scrollbar]:hidden">
+              <div className="flex gap-4 pr-4">
+                {galleryItems.map((item, index) => (
+                  <button
+                    key={item.src}
+                    type="button"
+                    onClick={() => openLightbox(index)}
+                    className="group relative h-[420px] w-[84vw] max-w-[340px] shrink-0 snap-center overflow-hidden rounded-[28px] border border-[#29543a]/10 bg-white shadow-[0_16px_36px_rgba(20,35,24,0.08)]"
+                    aria-label={`Otvori sliku ${index + 1}`}
+                  >
+                    <div className="relative h-full w-full">
+                      {renderImageOrPlaceholder(item, index, "cover")}
+                      <div className="absolute inset-0 bg-[linear-gradient(to_top,rgba(14,28,18,0.12),rgba(14,28,18,0.02))]" />
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-5 flex items-center justify-center gap-2">
+              {galleryItems.map((_, index) => (
+                <button
+                  key={index}
+                  type="button"
+                  onClick={() => setActiveIndex(index)}
+                  className={`h-2 w-2 rounded-full transition ${
+                    index === activeIndex ? "bg-[#29543a]" : "bg-[#29543a]/20"
+                  }`}
+                  aria-label={`Idi na sliku ${index + 1}`}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {activeLightboxItem && lightboxIndex !== null && (
+        <div
+          className="fixed inset-0 z-[120] flex items-center justify-center bg-black/88 px-4 py-6"
+          onClick={closeLightbox}
+        >
           <button
-            onClick={() => scrollByAmount("left")}
-            className="flex h-11 w-11 items-center justify-center rounded-full border border-[#d7ddd8] bg-white text-lg text-[#1f3d2b] shadow-sm transition hover:-translate-y-0.5 hover:bg-[#f5f7f5]"
-            aria-label="Prethodna fotografija"
+            type="button"
+            onClick={closeLightbox}
+            className="absolute right-4 top-4 z-[130] flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-white/10 text-2xl text-white backdrop-blur-md transition hover:bg-white/20"
+            aria-label="Zatvori"
+          >
+            ×
+          </button>
+
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              prevLightbox();
+            }}
+            className="absolute left-3 top-1/2 z-[130] flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-white/10 text-xl text-white backdrop-blur-md transition hover:bg-white/20 sm:left-5 sm:h-12 sm:w-12"
+            aria-label="Prethodna slika"
           >
             ←
           </button>
+
+          <div
+            className="relative w-full max-w-6xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="relative mx-auto flex h-[72vh] items-center justify-center overflow-hidden rounded-[30px] bg-[#111] shadow-[0_20px_80px_rgba(0,0,0,0.35)]">
+              {failedImages[activeLightboxItem.src] ? (
+                <div className="flex h-full w-full items-center justify-center bg-[linear-gradient(135deg,#f8f6f1_0%,#eef4ee_100%)]">
+                  <div className="text-center">
+                    <p className="text-sm font-medium uppercase tracking-[0.24em] text-[#29543a]/70">
+                      Fotografija
+                    </p>
+                    <p className="mt-2 text-base text-[#2f2f2a]/70">
+                      {lightboxIndex + 1}
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <Image
+                  src={activeLightboxItem.src}
+                  alt={activeLightboxItem.alt}
+                  fill
+                  sizes="100vw"
+                  className="object-contain"
+                  priority
+                  onError={() =>
+                    setFailedImages((prev) => ({
+                      ...prev,
+                      [activeLightboxItem.src]: true,
+                    }))
+                  }
+                />
+              )}
+            </div>
+
+            <p className="mt-4 text-center text-sm text-white/80 sm:text-base">
+              {activeLightboxItem.alt}
+            </p>
+          </div>
+
           <button
-            onClick={() => scrollByAmount("right")}
-            className="flex h-11 w-11 items-center justify-center rounded-full border border-[#d7ddd8] bg-white text-lg text-[#1f3d2b] shadow-sm transition hover:-translate-y-0.5 hover:bg-[#f5f7f5]"
-            aria-label="Sledeća fotografija"
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              nextLightbox();
+            }}
+            className="absolute right-3 top-1/2 z-[130] flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-white/10 text-xl text-white backdrop-blur-md transition hover:bg-white/20 sm:right-5 sm:h-12 sm:w-12"
+            aria-label="Sledeća slika"
           >
             →
           </button>
         </div>
-      </div>
-
-      <div
-        id="gallery-track"
-        className="mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
-      >
-        {galleryItems.map((item) => (
-          <article
-            key={item.id}
-            className="min-w-[82%] snap-start overflow-hidden rounded-3xl bg-white p-3 shadow-md sm:min-w-[48%] lg:min-w-[31%] xl:min-w-[23.5%]"
-          >
-            <div className="aspect-[4/5] rounded-2xl bg-[#e3e3de]" />
-            <div className="mt-4 text-sm leading-6 text-[#666]">
-              {item.label} — obrok / posluženje / detalj
-            </div>
-          </article>
-        ))}
-      </div>
-    </section>
+      )}
+    </>
   );
 }

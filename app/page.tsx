@@ -2,6 +2,7 @@ import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import Kako from "@/components/Kako";
 import Ponuda from "@/components/Ponuda";
+import Ketering from "@/components/Ketering";
 import Video from "@/components/Video";
 import Galerija from "@/components/Galerija";
 import Meni from "@/components/Meni";
@@ -22,6 +23,7 @@ export default function Page() {
         <Hero />
         <Kako />
         <Ponuda />
+        <Ketering />
         <Video />
         <Galerija />
         <Meni />
