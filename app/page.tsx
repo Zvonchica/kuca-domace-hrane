@@ -17,6 +17,10 @@ import ScrollToTop from "@/components/ScrollToTop";
 export default function Page() {
   return (
     <div className="min-h-screen bg-[#fafaf8] text-[#2f2f2f]">
+      
+      {/* scroll fix */}
+      <ScrollToTop />
+
       <Header />
 
       <main>
@@ -35,7 +39,6 @@ export default function Page() {
       </main>
 
       <Footer />
-      <ScrollToTop />
     </div>
   );
 }
