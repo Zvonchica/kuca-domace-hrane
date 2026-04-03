@@ -24,8 +24,8 @@ export default function Page() {
         <Kako />
         <Ponuda />
         <Ketering />
-        <Video />
         <Galerija />
+        <Video />
         <Meni />
         <Recenzije />
         <Onama />

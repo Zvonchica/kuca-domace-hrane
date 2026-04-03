@@ -1,198 +1,395 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 type VideoItem = {
+  id: number;
   title: string;
-  desc: string;
-  src: string;
+  videoSrc: string;
 };
 
-const videos: VideoItem[] = [
-  {
-    title: "Priprema današnjeg menija",
-    desc: "Kuvanje domaćih jela za firme.",
-    src: "/video/video-1.mp4",
-  },
-  {
-    title: "Topla kuhinja u radu",
-    desc: "Organizovan proces i pažljiva priprema.",
-    src: "/video/video-2.mp4",
-  },
-  {
-    title: "Pakovanje obroka",
-    desc: "Uredno, čisto i spremno za isporuku.",
-    src: "/video/video-3.mp4",
-  },
-  {
-    title: "Detalji serviranja",
-    desc: "Poverenje se gradi i izgledom.",
-    src: "/video/video-4.mp4",
-  },
+const videoItems: VideoItem[] = [
+  { id: 1, title: "Priprema domaćih obroka", videoSrc: "/video/video-1.mp4" },
+  { id: 2, title: "Domaća kuhinja za firme", videoSrc: "/video/video-2.mp4" },
+  { id: 3, title: "Uredno serviranje", videoSrc: "/video/video-3.mp4" },
+  { id: 4, title: "Pakovanje obroka", videoSrc: "/video/video-4.mp4" },
+  { id: 5, title: "Topla domaća hrana", videoSrc: "/video/video-5.mp4" },
+  { id: 6, title: "Dnevni meni za kancelarije", videoSrc: "/video/video-6.mp4" },
+  { id: 7, title: "Kuvanje u toku dana", videoSrc: "/video/video-7.mp4" },
+  { id: 8, title: "Detalji pripreme", videoSrc: "/video/video-8.mp4" },
+  { id: 9, title: "Obroci za timove", videoSrc: "/video/video-9.mp4" },
+  { id: 10, title: "Bez stresa do toplog obroka", videoSrc: "/video/video-10.mp4" },
 ];
 
+function wrapIndex(index: number, total: number) {
+  return (index + total) % total;
+}
+
 export default function Video() {
-  const sliderRef = useRef<HTMLDivElement | null>(null);
-  const [activeVideo, setActiveVideo] = useState<VideoItem | null>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [failedVideos, setFailedVideos] = useState<Record<string, boolean>>({});
 
-  const scrollByAmount = (direction: "left" | "right") => {
-    if (!sliderRef.current) return;
+  const desktopScrollerRef = useRef<HTMLDivElement | null>(null);
+  const mobileScrollerRef = useRef<HTMLDivElement | null>(null);
+  const lightboxVideoRef = useRef<HTMLVideoElement | null>(null);
+  const cardVideoRefs = useRef<Record<number, HTMLVideoElement | null>>({});
 
-    const amount = sliderRef.current.clientWidth * 0.72;
-    sliderRef.current.scrollBy({
-      left: direction === "left" ? -amount : amount,
-      behavior: "smooth",
-    });
+  const activeItem = useMemo(() => videoItems[activeIndex], [activeIndex]);
+
+  const goPrev = () => {
+    setActiveIndex((prev) => wrapIndex(prev - 1, videoItems.length));
+  };
+
+  const goNext = () => {
+    setActiveIndex((prev) => wrapIndex(prev + 1, videoItems.length));
+  };
+
+  const scrollToCard = (index: number) => {
+    const desktopScroller = desktopScrollerRef.current;
+    const mobileScroller = mobileScrollerRef.current;
+
+    if (desktopScroller) {
+      const desktopCard = desktopScroller.querySelector(
+        `[data-video-index="${index}"]`
+      ) as HTMLElement | null;
+
+      desktopCard?.scrollIntoView({
+        behavior: "smooth",
+        inline: "center",
+        block: "nearest",
+      });
+    }
+
+    if (mobileScroller) {
+      const mobileCard = mobileScroller.querySelector(
+        `[data-video-index="${index}"]`
+      ) as HTMLElement | null;
+
+      mobileCard?.scrollIntoView({
+        behavior: "smooth",
+        inline: "center",
+        block: "nearest",
+      });
+    }
+  };
+
+  const handleCardClick = (index: number) => {
+    setActiveIndex(index);
+    setLightboxOpen(true);
+  };
+
+  const handleVideoError = (src: string) => {
+    setFailedVideos((prev) => ({
+      ...prev,
+      [src]: true,
+    }));
   };
 
   useEffect(() => {
+    scrollToCard(activeIndex);
+  }, [activeIndex]);
+
+  useEffect(() => {
+    const activeVideo = cardVideoRefs.current[activeIndex];
+    if (!activeVideo) return;
+    if (failedVideos[activeItem.videoSrc]) return;
+
+    activeVideo.currentTime = 0;
+    void activeVideo.play().catch(() => {});
+  }, [activeIndex, activeItem.videoSrc, failedVideos]);
+
+  useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setActiveVideo(null);
-      }
+      if (!lightboxOpen) return;
+
+      if (event.key === "Escape") setLightboxOpen(false);
+      if (event.key === "ArrowLeft") goPrev();
+      if (event.key === "ArrowRight") goNext();
     };
 
-    if (activeVideo) {
+    window.addEventListener("keydown", handleKeyDown);
+
+    if (lightboxOpen) {
       document.body.style.overflow = "hidden";
-      window.addEventListener("keydown", handleKeyDown);
+      const video = lightboxVideoRef.current;
+      if (video && !failedVideos[activeItem.videoSrc]) {
+        void video.play().catch(() => {});
+      }
+    } else {
+      document.body.style.overflow = "";
     }
 
     return () => {
-      document.body.style.overflow = "";
       window.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "";
     };
-  }, [activeVideo]);
+  }, [lightboxOpen, activeItem.videoSrc, failedVideos]);
+
+  const renderFallback = (item: VideoItem) => (
+    <div className="absolute inset-0 bg-[linear-gradient(180deg,#214232_0%,#173326_100%)]">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_50%)]" />
+      <div className="absolute inset-x-0 top-0 h-px bg-white/20" />
+
+      <div className="absolute right-3 top-3 rounded-full border border-white/10 bg-black/15 px-2.5 py-1 text-[10px] uppercase tracking-[0.16em] text-white/75 backdrop-blur-sm">
+        Video
+      </div>
+
+      <div className="absolute inset-x-0 bottom-0 p-3.5 sm:p-5">
+        <p className="text-sm font-semibold leading-tight text-white sm:text-lg">
+          {item.title}
+        </p>
+      </div>
+    </div>
+  );
+
+  const renderCard = (
+    item: VideoItem,
+    index: number,
+    mode: "desktop" | "mobile"
+  ) => {
+    const isMobile = mode === "mobile";
+    const isActive = index === activeIndex;
+
+    return (
+      <button
+        key={`${mode}-${item.id}`}
+        data-video-index={index}
+        type="button"
+        onClick={() => handleCardClick(index)}
+        className={[
+          "group relative shrink-0 overflow-hidden rounded-[22px] border border-white/14 text-left transition-[transform,border-color,box-shadow,opacity] duration-300 ease-out",
+          "focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40",
+          isMobile
+            ? [
+                "snap-center",
+                "w-[78vw] min-w-[78vw] max-w-[300px]",
+                isActive
+                  ? "border-white/24 shadow-[0_20px_40px_rgba(0,0,0,0.18)] opacity-100"
+                  : "border-white/12 opacity-85",
+              ].join(" ")
+            : [
+                "w-[160px] sm:w-[185px] md:w-[210px] lg:w-[calc((100%-3.75rem)/4)]",
+                "hover:border-white/22 hover:translate-y-[-2px]",
+              ].join(" "),
+        ].join(" ")}
+        aria-label={`Otvori video ${item.title}`}
+      >
+        <div className="relative aspect-[9/16] w-full overflow-hidden">
+          {failedVideos[item.videoSrc] ? (
+            renderFallback(item)
+          ) : (
+            <>
+              <video
+                ref={(el) => {
+                  if (isActive) {
+                    cardVideoRefs.current[index] = el;
+                  }
+                }}
+                className="h-full w-full object-cover"
+                src={item.videoSrc}
+                muted
+                loop
+                playsInline
+                autoPlay={isActive}
+                preload={isActive ? "metadata" : "none"}
+                onLoadedData={(e) => {
+                  if (isActive) {
+                    void e.currentTarget.play().catch(() => {});
+                  }
+                }}
+                onError={() => handleVideoError(item.videoSrc)}
+              />
+              <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_top,rgba(6,14,10,0.58),rgba(6,14,10,0.14)_46%,rgba(6,14,10,0.08))]" />
+            </>
+          )}
+
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-white/20" />
+
+          <div className="absolute right-3 top-3 rounded-full border border-white/10 bg-black/15 px-2.5 py-1 text-[10px] uppercase tracking-[0.16em] text-white/75 backdrop-blur-sm">
+            Video
+          </div>
+
+          <div className="absolute inset-x-0 bottom-0 p-3.5 sm:p-5">
+            <p className="text-sm font-semibold leading-tight text-white sm:text-lg">
+              {item.title}
+            </p>
+          </div>
+        </div>
+      </button>
+    );
+  };
 
   return (
     <>
       <section
         id="video"
-        className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8 lg:py-14"
+        className="overflow-hidden bg-[#173326] py-12 sm:py-20 lg:py-24"
       >
-        <div className="mx-auto max-w-3xl text-center">
-          <p className="text-sm font-medium uppercase tracking-[0.18em] text-[#1f3d2b]">
-            Uvid u rad
-          </p>
+        <div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-10">
+          <div className="mx-auto max-w-[1440px]">
+            <div className="flex items-start justify-between gap-4 sm:gap-6">
+              <div className="max-w-5xl">
+                <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-white/62 sm:text-xs">
+                  Video priča
+                </p>
 
-          <h2 className="mt-3 text-3xl font-semibold tracking-tight text-[#1f1f1c] sm:text-4xl lg:text-5xl">
-            Kako izgleda u praksi
-          </h2>
+                <h2 className="mt-3 max-w-6xl text-[34px] leading-[1.04] font-semibold tracking-tight text-white sm:text-4xl lg:text-5xl">
+                  Domaća kuhinja za firme koja izgleda toplo, uredno, kvalitetno i
+                  pouzdano u svakom koraku
+                </h2>
+              </div>
 
-          <p className="mx-auto mt-4 max-w-2xl text-base leading-8 text-[#5f5f59] sm:text-lg">
-            Kratki prikaz pripreme, pakovanja i svakodnevnog ritma rada.
-          </p>
+              <p className="hidden shrink-0 pt-1 text-sm text-white/70 md:block">
+                {String(activeIndex + 1).padStart(2, "0")} /{" "}
+                {String(videoItems.length).padStart(2, "0")}
+              </p>
+            </div>
+
+            <div className="mt-6 h-px w-full bg-white/18" />
+
+            <div className="relative mt-7 sm:mt-10">
+              <button
+                type="button"
+                onClick={goPrev}
+                className="absolute left-0 top-1/2 z-20 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/12 bg-[#10261c] text-xl text-white shadow-[0_10px_24px_rgba(0,0,0,0.18)] transition duration-200 hover:bg-[#0f2219] lg:flex"
+                aria-label="Prethodni video"
+              >
+                ←
+              </button>
+
+              <button
+                type="button"
+                onClick={goNext}
+                className="absolute right-0 top-1/2 z-20 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/12 bg-[#10261c] text-xl text-white shadow-[0_10px_24px_rgba(0,0,0,0.18)] transition duration-200 hover:bg-[#0f2219] lg:flex"
+                aria-label="Sledeći video"
+              >
+                →
+              </button>
+
+              <div className="hidden lg:block lg:px-20 xl:px-24">
+                <div
+                  ref={desktopScrollerRef}
+                  className="-mx-4 overflow-x-auto px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                >
+                  <div className="flex items-stretch gap-3 pb-1 sm:gap-4 lg:gap-5">
+                    {videoItems.map((item, index) =>
+                      renderCard(item, index, "desktop")
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="lg:hidden">
+                <div
+                  ref={mobileScrollerRef}
+                  className="-mx-4 overflow-x-auto px-4 [scrollbar-width:none] snap-x snap-mandatory scroll-px-4 [&::-webkit-scrollbar]:hidden"
+                >
+                  <div className="flex gap-4 pr-8">
+                    <div className="w-[4px] shrink-0" />
+                    {videoItems.map((item, index) =>
+                      renderCard(item, index, "mobile")
+                    )}
+                    <div className="w-[18vw] max-w-[72px] shrink-0" />
+                  </div>
+                </div>
+
+                <div className="mt-6 flex items-center justify-between">
+                  <button
+                    type="button"
+                    onClick={goPrev}
+                    className="flex h-10 w-10 items-center justify-center rounded-full border border-white/12 bg-[#10261c] text-lg text-white transition hover:bg-[#0f2219]"
+                    aria-label="Prethodni video"
+                  >
+                    ←
+                  </button>
+
+                  <p className="text-sm text-white/70">
+                    {String(activeIndex + 1).padStart(2, "0")} /{" "}
+                    {String(videoItems.length).padStart(2, "0")}
+                  </p>
+
+                  <button
+                    type="button"
+                    onClick={goNext}
+                    className="flex h-10 w-10 items-center justify-center rounded-full border border-white/12 bg-[#10261c] text-lg text-white transition hover:bg-[#0f2219]"
+                    aria-label="Sledeći video"
+                  >
+                    →
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+      </section>
 
-        <div className="mt-6 hidden items-center justify-center gap-4 md:flex">
+      {lightboxOpen && (
+        <div
+          className="fixed inset-0 z-[120] flex items-center justify-center bg-black/88 px-4 py-6"
+          onClick={() => setLightboxOpen(false)}
+        >
           <button
             type="button"
+            onClick={() => setLightboxOpen(false)}
+            className="absolute right-4 top-4 z-[130] flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-white/10 text-2xl text-white backdrop-blur-md transition hover:bg-white/20"
+            aria-label="Zatvori"
+          >
+            ×
+          </button>
+
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              goPrev();
+            }}
+            className="absolute left-3 top-1/2 z-[130] flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-white/10 text-xl text-white backdrop-blur-md transition hover:bg-white/20 sm:left-5 sm:h-12 sm:w-12"
             aria-label="Prethodni video"
-            onClick={() => scrollByAmount("left")}
-            className="flex h-11 w-11 items-center justify-center rounded-full border border-[#d9ddd7] bg-white text-[#1f3d2b] shadow-sm transition hover:border-[#cfd6d0] hover:bg-[#f8faf7]"
           >
             ←
           </button>
 
+          <div
+            className="relative w-full max-w-6xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="relative mx-auto aspect-video overflow-hidden rounded-[28px] bg-[#111] shadow-[0_20px_60px_rgba(0,0,0,0.30)]">
+              {failedVideos[activeItem.videoSrc] ? (
+                renderFallback(activeItem)
+              ) : (
+                <video
+                  ref={lightboxVideoRef}
+                  key={`lightbox-${activeItem.videoSrc}`}
+                  className="h-full w-full object-contain bg-[#111]"
+                  src={activeItem.videoSrc}
+                  muted
+                  loop
+                  playsInline
+                  controls
+                  autoPlay
+                  preload="metadata"
+                  onError={() => handleVideoError(activeItem.videoSrc)}
+                />
+              )}
+            </div>
+
+            <p className="mt-4 text-center text-sm text-white/80 sm:text-base">
+              {activeItem.title}
+            </p>
+          </div>
+
           <button
             type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              goNext();
+            }}
+            className="absolute right-3 top-1/2 z-[130] flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-white/10 text-xl text-white backdrop-blur-md transition hover:bg-white/20 sm:right-5 sm:h-12 sm:w-12"
             aria-label="Sledeći video"
-            onClick={() => scrollByAmount("right")}
-            className="flex h-11 w-11 items-center justify-center rounded-full border border-[#d9ddd7] bg-white text-[#1f3d2b] shadow-sm transition hover:border-[#cfd6d0] hover:bg-[#f8faf7]"
           >
             →
           </button>
-        </div>
-
-        <div
-          ref={sliderRef}
-          className="mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:gap-5"
-        >
-          {videos.map((item) => (
-            <article
-              key={item.title}
-              className="min-w-[82%] snap-center rounded-[26px] border border-[#e7e7e2] bg-white p-3 shadow-[0_8px_22px_rgba(0,0,0,0.05)] sm:min-w-[58%] md:min-w-[31.5%] lg:min-w-[23.8%]"
-            >
-              <button
-                type="button"
-                onClick={() => setActiveVideo(item)}
-                className="block w-full text-left"
-                aria-label={`Otvori video: ${item.title}`}
-              >
-                <div className="overflow-hidden rounded-[22px] border border-[#e4e4de] bg-[#f1f1eb]">
-                  <div className="relative aspect-[9/14] w-full bg-[#d9d9d3]">
-                    <video
-                      className="h-full w-full object-cover"
-                      playsInline
-                      preload="none"
-                      muted
-                    >
-                      <source src={item.src} type="video/mp4" />
-                    </video>
-
-                    <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/88 text-[#1f3d2b] shadow-[0_8px_24px_rgba(0,0,0,0.16)]">
-                        <span className="ml-0.5 text-lg">▶</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="px-1 pb-1 pt-4">
-                  <h3 className="text-lg font-semibold leading-snug text-[#1f1f1c]">
-                    {item.title}
-                  </h3>
-
-                  <p className="mt-2 text-sm leading-7 text-[#5f5f59]">
-                    {item.desc}
-                  </p>
-                </div>
-              </button>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      {activeVideo && (
-        <div
-          className="fixed inset-0 z-[100] bg-black/80 p-4 sm:p-6"
-          onClick={() => setActiveVideo(null)}
-        >
-          <div className="flex h-full w-full items-center justify-center">
-            <div
-              className="relative w-full max-w-[420px] sm:max-w-[460px] md:max-w-[520px]"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <button
-                type="button"
-                aria-label="Zatvori video"
-                onClick={() => setActiveVideo(null)}
-                className="absolute -top-12 right-0 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-2xl text-white backdrop-blur transition hover:bg-white/20"
-              >
-                ✕
-              </button>
-
-              <div className="overflow-hidden rounded-[24px] bg-black shadow-[0_20px_60px_rgba(0,0,0,0.45)]">
-                <video
-                  key={activeVideo.src}
-                  className="h-auto w-full"
-                  controls
-                  playsInline
-                  autoPlay
-                >
-                  <source src={activeVideo.src} type="video/mp4" />
-                </video>
-              </div>
-
-              <div className="mt-4 text-center text-white">
-                <h3 className="text-lg font-semibold sm:text-xl">
-                  {activeVideo.title}
-                </h3>
-                <p className="mt-2 text-sm leading-7 text-white/80 sm:text-base">
-                  {activeVideo.desc}
-                </p>
-              </div>
-            </div>
-          </div>
         </div>
       )}
     </>
