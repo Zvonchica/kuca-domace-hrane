@@ -6,7 +6,7 @@ const menuDays = [
   {
     day: "Ponedeljak",
     short: "Pon",
-    accent: "bg-[#E7F0D8]",
+    accent: "bg-[#eef2ed]",
     items: [
       "Bistra pileća supa",
       "Juneći gulaš sa domaćim pireom",
@@ -17,7 +17,7 @@ const menuDays = [
   {
     day: "Utorak",
     short: "Uto",
-    accent: "bg-[#EAF4E2]",
+    accent: "bg-[#eef2ed]",
     items: [
       "Teleća čorba",
       "Punjene paprike u sosu",
@@ -28,7 +28,7 @@ const menuDays = [
   {
     day: "Sreda",
     short: "Sre",
-    accent: "bg-[#F0F5E8]",
+    accent: "bg-[#eef2ed]",
     items: [
       "Krem čorba od tikvica",
       "Pečena piletina sa krompirom",
@@ -39,7 +39,7 @@ const menuDays = [
   {
     day: "Četvrtak",
     short: "Čet",
-    accent: "bg-[#E5EFE1]",
+    accent: "bg-[#eef2ed]",
     items: [
       "Goveđa supa sa rezancima",
       "Juneće ćufte u domaćem sosu",
@@ -50,7 +50,7 @@ const menuDays = [
   {
     day: "Petak",
     short: "Pet",
-    accent: "bg-[#EEF6E9]",
+    accent: "bg-[#eef2ed]",
     items: [
       "Riblja čorba",
       "Oslić sa krompir salatom",
@@ -98,7 +98,7 @@ export default function Meni() {
   return (
     <section
       id="meni"
-      className="scroll-mt-[80px] w-full bg-[#f7f6f2] px-4 py-16 sm:px-6 lg:px-8"
+      className="scroll-mt-[var(--header-offset)] w-full bg-[#f7f6f2] px-4 py-16 sm:px-6 lg:px-8"
     >
       <div className="mx-auto max-w-7xl">
         <div className="mx-auto max-w-3xl text-center">
@@ -116,18 +116,106 @@ export default function Meni() {
           </p>
         </div>
 
+        {/* MOBILE */}
+        <div className="mt-10 md:hidden">
+          <div className="-mx-4 overflow-x-auto px-4 snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <div className="flex gap-4 pr-4">
+              {menuDays.map((item, index) => (
+                <button
+                  key={item.day}
+                  type="button"
+                  onClick={() => setActiveIndex(index)}
+                  className={`w-[84vw] max-w-[360px] shrink-0 snap-center rounded-[28px] border px-5 py-6 text-left shadow-[0_12px_30px_rgba(20,55,35,0.08)] transition ${
+                    index === activeIndex
+                      ? "border-[#d8ddd6] bg-[#eef2ed]"
+                      : "border-[#e3e5df] bg-[#f4f6f3]"
+                  }`}
+                  aria-label={item.day}
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="text-[10px] font-medium uppercase tracking-[0.2em] text-[#295135]/80">
+                      Kuća domaće hrane
+                    </div>
+
+                    <div className="rounded-full border border-[#cfd6cf] bg-white/90 px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-[#295135]">
+                      Dnevni meni
+                    </div>
+                  </div>
+
+                  <h3 className="mt-3 text-[28px] font-semibold tracking-tight text-[#183222]">
+                    {item.day}
+                  </h3>
+
+                  <div className="mt-4 h-px w-full bg-[#e1e4de]" />
+
+                  <div className="mt-4 grid gap-2.5">
+                    {item.items.map((food, foodIndex) => (
+                      <div
+                        key={food}
+                        className="flex items-start gap-3 rounded-2xl bg-white px-4 py-3"
+                      >
+                        <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#295135] text-xs font-semibold text-white">
+                          {foodIndex + 1}
+                        </div>
+
+                        <div className="text-sm leading-relaxed text-[#213729]">
+                          {food}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-5 flex items-center justify-center gap-2">
+            {menuDays.map((item, index) => (
+              <button
+                key={item.day}
+                type="button"
+                onClick={() => setActiveIndex(index)}
+                aria-label={item.day}
+                className={`h-2.5 rounded-full transition-all duration-300 ${
+                  index === activeIndex
+                    ? "w-10 bg-[#295135]"
+                    : "w-2.5 bg-[#b8c1b9]"
+                }`}
+              />
+            ))}
+          </div>
+
+          <div className="mt-6 grid grid-cols-5 gap-2 sm:gap-3">
+            {menuDays.map((item, index) => (
+              <button
+                key={item.day}
+                type="button"
+                onClick={() => setActiveIndex(index)}
+                className={`rounded-2xl border px-2 py-3 text-center text-xs font-medium transition-all sm:px-3 sm:text-sm ${
+                  index === activeIndex
+                    ? "border-[#295135] bg-[#295135] text-white shadow-md"
+                    : "border-[#d8ddd6] bg-white text-[#2c4d36] hover:border-[#c7d0c8] hover:bg-[#fafbf9]"
+                }`}
+              >
+                {item.short}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* DESKTOP / TABLET */}
         <div
-          className="relative mt-12"
+          className="relative mt-12 hidden md:block"
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
         >
-          <div className="relative overflow-hidden rounded-[32px] border border-[#dfe8dc] bg-white px-3 py-6 shadow-[0_10px_40px_rgba(20,55,35,0.08)] sm:px-6 sm:py-8 lg:px-10 lg:py-10">
+          <div className="relative overflow-hidden rounded-[32px] border border-[#e3e5df] bg-white px-3 py-6 shadow-[0_10px_40px_rgba(20,55,35,0.08)] sm:px-6 sm:py-8 lg:px-10 lg:py-10">
             <div className="relative flex items-center justify-center">
               <button
                 type="button"
                 onClick={goPrev}
                 aria-label="Prethodni dan"
-                className="absolute left-0 z-20 flex h-11 w-11 items-center justify-center rounded-full border border-[#d7e2d3] bg-white text-[#295135] shadow-[0_8px_20px_rgba(20,55,35,0.14)] transition duration-300 hover:scale-105 hover:bg-[#f4f8f2] sm:left-2 sm:h-12 sm:w-12 lg:left-4 lg:h-14 lg:w-14"
+                className="absolute left-0 z-20 hidden h-11 w-11 items-center justify-center rounded-full border border-[#d9dfd8] bg-white text-[#295135] shadow-[0_8px_20px_rgba(20,55,35,0.14)] transition duration-300 hover:scale-105 hover:bg-[#f7f8f5] md:flex sm:left-2 sm:h-12 sm:w-12 lg:left-4 lg:h-14 lg:w-14"
               >
                 <span className="text-2xl leading-none">‹</span>
               </button>
@@ -157,7 +245,7 @@ export default function Meni() {
                 type="button"
                 onClick={goNext}
                 aria-label="Sledeći dan"
-                className="absolute right-0 z-20 flex h-11 w-11 items-center justify-center rounded-full border border-[#d7e2d3] bg-white text-[#295135] shadow-[0_8px_20px_rgba(20,55,35,0.14)] transition duration-300 hover:scale-105 hover:bg-[#f4f8f2] sm:right-2 sm:h-12 sm:w-12 lg:right-4 lg:h-14 lg:w-14"
+                className="absolute right-0 z-20 hidden h-11 w-11 items-center justify-center rounded-full border border-[#d9dfd8] bg-white text-[#295135] shadow-[0_8px_20px_rgba(20,55,35,0.14)] transition duration-300 hover:scale-105 hover:bg-[#f7f8f5] md:flex sm:right-2 sm:h-12 sm:w-12 lg:right-4 lg:h-14 lg:w-14"
               >
                 <span className="text-2xl leading-none">›</span>
               </button>
@@ -173,7 +261,7 @@ export default function Meni() {
                   className={`h-2.5 rounded-full transition-all duration-300 ${
                     index === activeIndex
                       ? "w-10 bg-[#295135]"
-                      : "w-2.5 bg-[#b8c9bb] hover:bg-[#8ea892]"
+                      : "w-2.5 bg-[#b8c1b9] hover:bg-[#8ea892]"
                   }`}
                 />
               ))}
@@ -188,7 +276,7 @@ export default function Meni() {
                   className={`rounded-2xl border px-2 py-3 text-center text-xs font-medium transition-all sm:px-3 sm:text-sm lg:text-base ${
                     index === activeIndex
                       ? "border-[#295135] bg-[#295135] text-white shadow-md"
-                      : "border-[#cfdbd0] bg-white text-[#2c4d36] hover:border-[#b9cbbd] hover:bg-[#f7faf5]"
+                      : "border-[#d8ddd6] bg-white text-[#2c4d36] hover:border-[#c7d0c8] hover:bg-[#fafbf9]"
                   }`}
                 >
                   {item.short}
@@ -199,7 +287,7 @@ export default function Meni() {
         </div>
 
         <div className="mt-10 grid gap-4 md:grid-cols-3">
-          <div className="rounded-[24px] border border-[#dfe8dc] bg-white p-6 shadow-[0_8px_24px_rgba(20,55,35,0.05)]">
+          <div className="rounded-[24px] border border-[#e3e5df] bg-white p-6 shadow-[0_8px_24px_rgba(20,55,35,0.05)]">
             <div className="text-lg font-semibold text-[#183222]">
               Dnevni obrok
             </div>
@@ -209,7 +297,7 @@ export default function Meni() {
             </p>
           </div>
 
-          <div className="rounded-[24px] border border-[#dfe8dc] bg-white p-6 shadow-[0_8px_24px_rgba(20,55,35,0.05)]">
+          <div className="rounded-[24px] border border-[#e3e5df] bg-white p-6 shadow-[0_8px_24px_rgba(20,55,35,0.05)]">
             <div className="text-lg font-semibold text-[#183222]">
               Nedeljni plan
             </div>
@@ -219,7 +307,7 @@ export default function Meni() {
             </p>
           </div>
 
-          <div className="rounded-[24px] border border-[#dfe8dc] bg-white p-6 shadow-[0_8px_24px_rgba(20,55,35,0.05)]">
+          <div className="rounded-[24px] border border-[#e3e5df] bg-white p-6 shadow-[0_8px_24px_rgba(20,55,35,0.05)]">
             <div className="text-lg font-semibold text-[#183222]">
               Po dogovoru
             </div>
@@ -241,9 +329,9 @@ export default function Meni() {
 function MenuActiveCard({ data }: { data: MenuDay }) {
   return (
     <div
-      className={`relative z-10 w-full max-w-[90%] sm:max-w-[78%] lg:max-w-[700px] rounded-[28px] sm:rounded-[34px] border border-[#dfe8dc] ${data.accent} px-5 py-6 shadow-[0_18px_50px_rgba(20,55,35,0.12)] transition-all duration-500 ease-out sm:px-8 sm:py-8 lg:px-10 lg:py-10`}
+      className={`relative z-10 w-full max-w-[90%] sm:max-w-[78%] lg:max-w-[700px] rounded-[28px] sm:rounded-[34px] border border-[#e3e5df] ${data.accent} px-5 py-6 shadow-[0_18px_50px_rgba(20,55,35,0.12)] transition-all duration-500 ease-out sm:px-8 sm:py-8 lg:px-10 lg:py-10`}
     >
-      <div className="absolute right-3 top-3 rounded-full border border-[#b7c9b8] bg-white/85 px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-[#295135] sm:right-5 sm:top-5 sm:px-3 sm:text-xs">
+      <div className="absolute right-3 top-3 rounded-full border border-[#cfd6cf] bg-white/90 px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-[#295135] sm:right-5 sm:top-5 sm:px-3 sm:text-xs">
         Dnevni meni
       </div>
 
@@ -256,13 +344,13 @@ function MenuActiveCard({ data }: { data: MenuDay }) {
           {data.day}
         </h3>
 
-        <div className="mt-4 h-px w-full bg-[#c9d8ca] sm:mt-6" />
+        <div className="mt-4 h-px w-full bg-[#e1e4de] sm:mt-6" />
 
         <div className="mt-4 grid gap-2.5 sm:mt-6 sm:gap-3">
           {data.items.map((item, index) => (
             <div
               key={item}
-              className="flex items-start gap-2.5 rounded-xl bg-white/70 px-3 py-2.5 text-left sm:gap-3 sm:rounded-2xl sm:px-4 sm:py-3"
+              className="flex items-start gap-2.5 rounded-xl bg-white px-3 py-2.5 text-left sm:gap-3 sm:rounded-2xl sm:px-4 sm:py-3"
             >
               <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#295135] text-[10px] font-semibold text-white sm:h-6 sm:w-6 sm:text-xs">
                 {index + 1}
@@ -295,7 +383,7 @@ function MenuSideCard({
       type="button"
       onClick={onClick}
       aria-label={data.day}
-      className={`absolute top-1/2 z-0 hidden -translate-y-1/2 overflow-hidden rounded-[28px] border border-[#dfe8dc] ${data.accent} p-5 text-left shadow-[0_10px_30px_rgba(20,55,35,0.08)] transition-all duration-500 ease-out hover:scale-[1.02] md:block md:h-[300px] md:w-[155px] lg:h-[370px] lg:w-[210px] ${
+      className={`absolute top-1/2 z-0 hidden -translate-y-1/2 overflow-hidden rounded-[28px] border border-[#e3e5df] ${data.accent} p-5 text-left shadow-[0_10px_30px_rgba(20,55,35,0.08)] transition-all duration-500 ease-out hover:scale-[1.02] md:block md:h-[300px] md:w-[155px] lg:h-[370px] lg:w-[210px] ${
         isLeft ? "left-[7%] lg:left-[9%]" : "right-[7%] lg:right-[9%]"
       }`}
     >

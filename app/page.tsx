@@ -10,7 +10,6 @@ import Recenzije from "@/components/Recenzije";
 import Onama from "@/components/Onama";
 import Faq from "@/components/Faq";
 import Kontakt from "@/components/Kontakt";
-import SocialStrip from "@/components/SocialStrip";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
 
@@ -35,7 +34,6 @@ export default function Page() {
         <Onama />
         <Faq />
         <Kontakt />
-        <SocialStrip />
       </main>
 
       <Footer />

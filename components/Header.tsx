@@ -20,7 +20,6 @@ export default function Header() {
   useEffect(() => {
     const root = document.documentElement;
     root.style.scrollBehavior = "smooth";
-    root.style.setProperty("--header-offset", "120px");
 
     const updateHeaderOffset = () => {
       const isMobile = window.innerWidth < 640;
@@ -58,20 +57,9 @@ export default function Header() {
 
     e.preventDefault();
 
-    const headerOffset =
-      Number.parseInt(
-        getComputedStyle(document.documentElement).getPropertyValue(
-          "--header-offset"
-        ),
-        10
-      ) || 120;
-
-    const targetTop =
-      target.getBoundingClientRect().top + window.scrollY - headerOffset;
-
-    window.scrollTo({
-      top: Math.max(targetTop, 0),
+    target.scrollIntoView({
       behavior: "smooth",
+      block: "start",
     });
 
     if (closeMobile) {

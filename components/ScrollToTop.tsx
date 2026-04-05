@@ -6,7 +6,6 @@ export default function ScrollToTop() {
   const [showScrollTop, setShowScrollTop] = useState(false);
 
   useEffect(() => {
-    // 🔴 OVO JE KLJUČNO
     if ("scrollRestoration" in window.history) {
       window.history.scrollRestoration = "manual";
     }
@@ -25,11 +24,12 @@ export default function ScrollToTop() {
 
   return (
     <button
+      type="button"
       onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-      className="fixed bottom-24 right-4 z-40 flex h-9 w-9 items-center justify-center rounded-full border border-white/30 bg-white/85 text-[#1f3d2b] shadow-lg backdrop-blur-md transition hover:-translate-y-0.5 hover:bg-white sm:bottom-6 sm:right-6 sm:h-11 sm:w-11"
+      className="fixed bottom-5 right-4 z-40 flex h-12 w-12 items-center justify-center rounded-full border border-white/35 bg-white/90 text-[#1f3d2b] shadow-[0_12px_28px_rgba(0,0,0,0.16)] backdrop-blur-md transition hover:-translate-y-0.5 hover:bg-white sm:bottom-6 sm:right-6 sm:h-11 sm:w-11"
       aria-label="Vrati na vrh"
     >
-      ↑
+      <span className="text-xl leading-none sm:text-lg">↑</span>
     </button>
   );
 }

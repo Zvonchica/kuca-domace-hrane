@@ -148,22 +148,29 @@ export default function Video() {
     };
   }, [lightboxOpen, activeItem.videoSrc, failedVideos]);
 
-  const renderFallback = (item: VideoItem) => (
-    <div className="absolute inset-0 bg-[linear-gradient(180deg,#214232_0%,#173326_100%)]">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_50%)]" />
-      <div className="absolute inset-x-0 top-0 h-px bg-white/20" />
+  const renderFallback = (item: VideoItem, mode: "desktop" | "mobile") => {
+    const isMobile = mode === "mobile";
 
-      <div className="absolute right-3 top-3 rounded-full border border-white/10 bg-black/15 px-2.5 py-1 text-[10px] uppercase tracking-[0.16em] text-white/75 backdrop-blur-sm">
-        Video
-      </div>
+    return (
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,#214232_0%,#173326_100%)]">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_50%)]" />
+        <div className="absolute inset-x-0 top-0 h-px bg-white/20" />
 
-      <div className="absolute inset-x-0 bottom-0 p-3.5 sm:p-5">
-        <p className="text-sm font-semibold leading-tight text-white sm:text-lg">
-          {item.title}
-        </p>
+        {/* desktop zadržava label, mobilni je nema */}
+        {!isMobile && (
+          <div className="absolute right-3 top-3 rounded-full border border-white/10 bg-black/15 px-2.5 py-1 text-[10px] uppercase tracking-[0.16em] text-white/75 backdrop-blur-sm">
+            Video
+          </div>
+        )}
+
+        <div className="absolute inset-x-0 bottom-0 p-3.5 sm:p-5">
+          <p className="text-sm font-semibold leading-tight text-white sm:text-lg">
+            {item.title}
+          </p>
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const renderCard = (
     item: VideoItem,
@@ -199,7 +206,7 @@ export default function Video() {
       >
         <div className="relative aspect-[9/16] w-full overflow-hidden">
           {failedVideos[item.videoSrc] ? (
-            renderFallback(item)
+            renderFallback(item, mode)
           ) : (
             <>
               <video
@@ -228,9 +235,12 @@ export default function Video() {
 
           <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-white/20" />
 
-          <div className="absolute right-3 top-3 rounded-full border border-white/10 bg-black/15 px-2.5 py-1 text-[10px] uppercase tracking-[0.16em] text-white/75 backdrop-blur-sm">
-            Video
-          </div>
+          {/* desktop zadržava label, mobilni je nema */}
+          {!isMobile && (
+            <div className="absolute right-3 top-3 rounded-full border border-white/10 bg-black/15 px-2.5 py-1 text-[10px] uppercase tracking-[0.16em] text-white/75 backdrop-blur-sm">
+              Video
+            </div>
+          )}
 
           <div className="absolute inset-x-0 bottom-0 p-3.5 sm:p-5">
             <p className="text-sm font-semibold leading-tight text-white sm:text-lg">
@@ -246,7 +256,7 @@ export default function Video() {
     <>
       <section
         id="video"
-        className="overflow-hidden bg-[#173326] py-12 sm:py-20 lg:py-24"
+        className="scroll-mt-[var(--header-offset)] overflow-hidden bg-[#173326] py-12 sm:py-20 lg:py-24"
       >
         <div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-10">
           <div className="mx-auto max-w-[1440px]">
@@ -262,6 +272,7 @@ export default function Video() {
                 </h2>
               </div>
 
+              {/* desktop/tablet broj ostaje, mobilni se sklanja */}
               <p className="hidden shrink-0 pt-1 text-sm text-white/70 md:block">
                 {String(activeIndex + 1).padStart(2, "0")} /{" "}
                 {String(videoItems.length).padStart(2, "0")}
@@ -316,30 +327,7 @@ export default function Video() {
                   </div>
                 </div>
 
-                <div className="mt-6 flex items-center justify-between">
-                  <button
-                    type="button"
-                    onClick={goPrev}
-                    className="flex h-10 w-10 items-center justify-center rounded-full border border-white/12 bg-[#10261c] text-lg text-white transition hover:bg-[#0f2219]"
-                    aria-label="Prethodni video"
-                  >
-                    ←
-                  </button>
-
-                  <p className="text-sm text-white/70">
-                    {String(activeIndex + 1).padStart(2, "0")} /{" "}
-                    {String(videoItems.length).padStart(2, "0")}
-                  </p>
-
-                  <button
-                    type="button"
-                    onClick={goNext}
-                    className="flex h-10 w-10 items-center justify-center rounded-full border border-white/12 bg-[#10261c] text-lg text-white transition hover:bg-[#0f2219]"
-                    aria-label="Sledeći video"
-                  >
-                    →
-                  </button>
-                </div>
+                {/* na mobilnom uklonjene strelice i brojač */}
               </div>
             </div>
           </div>
@@ -378,7 +366,7 @@ export default function Video() {
           >
             <div className="relative mx-auto aspect-video overflow-hidden rounded-[28px] bg-[#111] shadow-[0_20px_60px_rgba(0,0,0,0.30)]">
               {failedVideos[activeItem.videoSrc] ? (
-                renderFallback(activeItem)
+                renderFallback(activeItem, "desktop")
               ) : (
                 <video
                   ref={lightboxVideoRef}

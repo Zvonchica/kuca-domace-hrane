@@ -32,7 +32,7 @@ export default function Faq() {
   return (
     <section
       id="faq"
-      className="scroll-mt-[80px] mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8"
+      className="scroll-mt-[var(--header-offset)] mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8"
     >
       <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
         Česta pitanja
@@ -43,13 +43,18 @@ export default function Faq() {
           const isOpen = openFaq === index;
 
           return (
-            <div key={item.q} className="overflow-hidden rounded-2xl bg-white shadow-sm">
+            <div
+              key={item.q}
+              className="overflow-hidden rounded-2xl bg-white shadow-sm"
+            >
               <button
                 onClick={() => setOpenFaq(isOpen ? null : index)}
                 className="flex w-full items-center justify-between gap-4 px-5 py-5 text-left"
               >
                 <span className="font-medium">{item.q}</span>
-                <span className="text-2xl text-[#1f3d2b]">{isOpen ? "−" : "+"}</span>
+                <span className="text-2xl text-[#1f3d2b]">
+                  {isOpen ? "−" : "+"}
+                </span>
               </button>
 
               {isOpen && (

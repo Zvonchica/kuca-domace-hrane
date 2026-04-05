@@ -97,7 +97,7 @@ export default function Kontakt() {
   return (
     <section
       id="kontakt"
-      className="relative scroll-mt-[128px] overflow-hidden bg-[#1b3429] py-16 sm:scroll-mt-[136px] sm:py-20 lg:scroll-mt-[148px] lg:py-24"
+      className="relative scroll-mt-[var(--header-offset)] overflow-hidden bg-[#1b3429] py-16 sm:py-20 lg:py-24"
     >
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute inset-0 bg-[linear-gradient(180deg,#1a3328_0%,#1d372c_22%,#213d31_48%,#244336_72%,#27483a_100%)]" />
@@ -205,7 +205,7 @@ export default function Kontakt() {
             </div>
           </div>
         </div>
-        
+
         <div className="relative mt-8 sm:mt-10">
           <div className="absolute -inset-[1px] rounded-[30px] bg-[linear-gradient(135deg,rgba(221,196,160,0.34),rgba(162,185,166,0.10),rgba(255,255,255,0.08))] blur-sm" />
 

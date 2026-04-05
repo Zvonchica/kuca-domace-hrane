@@ -4,18 +4,18 @@ export default function Ketering() {
   return (
     <section
       id="ketering"
-      className="relative w-full scroll-mt-[80px] overflow-hidden"
+      className="relative w-full scroll-mt-[var(--header-offset)] overflow-hidden"
     >
       <div className="relative h-[360px] sm:h-[470px] lg:h-[560px]">
         <Image
           src="/images/ketering-posluzenje-kanapei.webp"
           alt="Ketering posluženje"
           fill
-          priority={false}
           sizes="100vw"
           className="object-cover object-[72%_78%]"
         />
 
+        {/* overlay – mobilni svetliji */}
         <div className="absolute inset-0 bg-black/12 sm:bg-black/14 lg:bg-black/18" />
         <div className="absolute inset-0 bg-gradient-to-r from-black/42 via-black/16 to-transparent sm:from-black/44 sm:via-black/16 lg:from-black/52 lg:via-black/22 lg:to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-b from-black/8 via-transparent to-black/14 sm:from-black/8 sm:to-black/16 lg:from-black/10 lg:to-black/18" />
@@ -31,8 +31,7 @@ export default function Ketering() {
             </h2>
 
             <p className="mt-3 max-w-[280px] text-sm leading-6 text-white/92 sm:mt-5 sm:max-w-xl sm:text-lg sm:leading-8">
-              Priprema hrane za manje događaje, poslovne sastanke, rođendane i
-              okupljanja.
+              Priprema hrane za manje događaje, poslovne sastanke, rođendane i okupljanja.
             </p>
 
             <div className="mt-4 space-y-1.5 text-sm text-white/92 sm:mt-6 sm:space-y-2.5 sm:text-base lg:text-lg">

@@ -147,14 +147,14 @@ export default function Galerija() {
         zIndex: number;
       }
     > = isDesktop
-        ? {
+      ? {
           [-2]: { x: -360, y: 34, rotate: -5, scale: 0.84, opacity: 0.35, zIndex: 10 },
           [-1]: { x: -215, y: 16, rotate: -2.5, scale: 0.92, opacity: 0.72, zIndex: 20 },
           [0]: { x: 0, y: 0, rotate: 0, scale: 1, opacity: 1, zIndex: 40 },
           [1]: { x: 215, y: 16, rotate: 2.5, scale: 0.92, opacity: 0.72, zIndex: 20 },
           [2]: { x: 360, y: 34, rotate: 5, scale: 0.84, opacity: 0.35, zIndex: 10 },
         }
-        : {
+      : {
           [-2]: { x: -250, y: 24, rotate: -4, scale: 0.82, opacity: 0.34, zIndex: 10 },
           [-1]: { x: -145, y: 12, rotate: -2, scale: 0.91, opacity: 0.72, zIndex: 20 },
           [0]: { x: 0, y: 0, rotate: 0, scale: 1, opacity: 1, zIndex: 40 },
@@ -177,7 +177,7 @@ export default function Galerija() {
     <>
       <section
         id="galerija"
-        className="relative z-0 overflow-hidden bg-[#faf8f4] py-12 sm:py-16 lg:py-20"
+        className="relative z-0 scroll-mt-[var(--header-offset)] overflow-hidden bg-[#faf8f4] py-12 sm:py-16 lg:py-20"
       >
         <div className="mx-auto max-w-[1380px] px-4 sm:px-6 lg:px-8">
           <div
@@ -380,8 +380,9 @@ export default function Galerija() {
                   key={index}
                   type="button"
                   onClick={() => setActiveIndex(index)}
-                  className={`h-2 w-2 rounded-full transition ${index === activeIndex ? "bg-[#29543a]" : "bg-[#29543a]/20"
-                    }`}
+                  className={`h-2 w-2 rounded-full transition ${
+                    index === activeIndex ? "bg-[#29543a]" : "bg-[#29543a]/20"
+                  }`}
                   aria-label={`Idi na sliku ${index + 1}`}
                 />
               ))}

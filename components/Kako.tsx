@@ -33,7 +33,7 @@ export default function Kako() {
   return (
     <section
       id="kako"
-      className="mx-auto w-full max-w-7xl px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-20"
+      className="scroll-mt-[var(--header-offset)] mx-auto w-full max-w-7xl px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-20"
     >
       <div className="mx-auto max-w-3xl text-center">
         <p className="text-sm font-medium uppercase tracking-[0.18em] text-[#1f3d2b]">

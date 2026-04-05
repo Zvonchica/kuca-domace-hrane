@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export default function Hero() {
   return (
-    <section className="relative scroll-mt-[80px] flex min-h-[500px] items-center justify-center overflow-hidden sm:min-h-[560px] lg:min-h-[640px]">
+    <section className="relative scroll-mt-[var(--header-offset)] flex min-h-[500px] items-center justify-center overflow-hidden sm:min-h-[560px] lg:min-h-[640px]">
       <Image
         src="/images/hero-food.webp"
         alt="Domaća kuvana hrana"
@@ -13,8 +13,9 @@ export default function Hero() {
         className="object-cover"
       />
 
-      <div className="absolute inset-0 bg-black/45" />
-      <div className="absolute inset-0 bg-gradient-to-b from-black/15 via-black/35 to-black/50" />
+      {/* blaži overlay za mobilni */}
+      <div className="absolute inset-0 bg-black/28 sm:bg-black/35 lg:bg-black/45" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/25 to-black/38 sm:from-black/12 sm:via-black/30 sm:to-black/45 lg:from-black/15 lg:via-black/35 lg:to-black/50" />
 
       <div className="relative z-10 mx-auto flex w-full items-center justify-center px-4 pt-6 pb-10 sm:px-6 sm:pt-8 sm:pb-12 lg:px-8 lg:pt-12 lg:pb-16">
         <div className="max-w-3xl text-center text-white">
