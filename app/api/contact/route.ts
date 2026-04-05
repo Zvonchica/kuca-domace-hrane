@@ -153,7 +153,6 @@ Poruka: ${poruka || "Nije navedeno"}
     const adminResult = await resend.emails.send({
       from: "Kuća domaće hrane <onboarding@resend.dev>",
       to: "marinaprsic@gmail.com",
-      replyTo: email,
       subject: `Novi upit sa sajta — ${firma}`,
       html: adminHtml,
       text: adminText,
@@ -171,53 +170,6 @@ Poruka: ${poruka || "Nije navedeno"}
         },
         { status: 500 }
       );
-    }
-
-    const userHtml = `
-      <div style="font-family: Arial, Helvetica, sans-serif; color: #2b2b2b; line-height: 1.6;">
-        <h2 style="margin: 0 0 16px; color: #1f3d2b;">Potvrda prijema upita</h2>
-
-        <p>Poštovani,</p>
-
-        <p>
-          Vaš upit je uspešno primljen. Nakon pregleda dostavljenih podataka,
-          javljamo vam se sa konkretnim predlogom saradnje.
-        </p>
-
-        <p style="margin-top: 24px;">
-          Srdačno,<br />
-          <strong>Kuća domaće hrane</strong>
-        </p>
-      </div>
-    `;
-
-    const userText = `
-Potvrda prijema upita
-
-Poštovani,
-
-Vaš upit je uspešno primljen. Nakon pregleda dostavljenih podataka, javljamo vam se sa konkretnim predlogom saradnje.
-
-Srdačno,
-Kuća domaće hrane
-    `.trim();
-
-    try {
-      const userResult = await resend.emails.send({
-        from: "Kuća domaće hrane <onboarding@resend.dev>",
-        to: email,
-        subject: "Potvrda prijema upita — Kuća domaće hrane",
-        html: userHtml,
-        text: userText,
-      });
-
-      console.log("USER RESULT:", userResult);
-
-      if (userResult.error) {
-        console.error("USER ERROR:", userResult.error);
-      }
-    } catch (userError) {
-      console.error("USER SEND CRASH:", userError);
     }
 
     return Response.json({ success: true }, { status: 200 });
