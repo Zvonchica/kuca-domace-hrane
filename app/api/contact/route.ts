@@ -159,7 +159,11 @@ Poruka: ${poruka || "Nije navedeno"}
       text: adminText,
     });
 
+    console.log("ADMIN RESULT:", adminResult);
+
     if (adminResult.error) {
+      console.error("ADMIN ERROR:", adminResult.error);
+
       return Response.json(
         {
           error:
@@ -198,20 +202,28 @@ Srdačno,
 Kuća domaće hrane
     `.trim();
 
-    const userResult = await resend.emails.send({
-      from: "Kuća domaće hrane <onboarding@resend.dev>",
-      to: email,
-      subject: "Potvrda prijema upita — Kuća domaće hrane",
-      html: userHtml,
-      text: userText,
-    });
+    try {
+      const userResult = await resend.emails.send({
+        from: "Kuća domaće hrane <onboarding@resend.dev>",
+        to: email,
+        subject: "Potvrda prijema upita — Kuća domaće hrane",
+        html: userHtml,
+        text: userText,
+      });
 
-    if (userResult.error) {
-      console.error("Auto potvrda korisniku nije poslata:", userResult.error);
+      console.log("USER RESULT:", userResult);
+
+      if (userResult.error) {
+        console.error("USER ERROR:", userResult.error);
+      }
+    } catch (userError) {
+      console.error("USER SEND CRASH:", userError);
     }
 
     return Response.json({ success: true }, { status: 200 });
-  } catch {
+  } catch (error) {
+    console.error("FATAL ERROR:", error);
+
     return Response.json(
       {
         error:
