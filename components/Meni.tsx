@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 const menuDays = [
   {
@@ -70,6 +70,8 @@ export default function Meni() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
 
+  const mobileScrollerRef = useRef<HTMLDivElement | null>(null);
+
   const total = menuDays.length;
 
   const prevIndex = useMemo(
@@ -95,6 +97,81 @@ export default function Meni() {
   const goPrev = () => setActiveIndex((prev) => wrapIndex(prev - 1, total));
   const goNext = () => setActiveIndex((prev) => wrapIndex(prev + 1, total));
 
+  useEffect(() => {
+    const scroller = mobileScrollerRef.current;
+    if (!scroller) return;
+
+    const activeCard = scroller.querySelector(
+      `[data-menu-index="${activeIndex}"]`
+    ) as HTMLElement | null;
+
+    if (!activeCard) return;
+
+    const scrollerRect = scroller.getBoundingClientRect();
+    const cardRect = activeCard.getBoundingClientRect();
+
+    const targetLeft =
+      scroller.scrollLeft +
+      (cardRect.left - scrollerRect.left) -
+      (scrollerRect.width / 2 - cardRect.width / 2);
+
+    scroller.scrollTo({
+      left: Math.max(0, targetLeft),
+      behavior: "smooth",
+    });
+  }, [activeIndex]);
+
+  useEffect(() => {
+    const scroller = mobileScrollerRef.current;
+    if (!scroller) return;
+
+    let ticking = false;
+
+    const handleScroll = () => {
+      if (ticking) return;
+
+      window.requestAnimationFrame(() => {
+        const cards = Array.from(
+          scroller.querySelectorAll<HTMLElement>("[data-menu-index]")
+        );
+
+        if (!cards.length) {
+          ticking = false;
+          return;
+        }
+
+        const scrollerRect = scroller.getBoundingClientRect();
+        const scrollerCenter = scrollerRect.left + scrollerRect.width / 2;
+
+        let closestIndex = 0;
+        let closestDistance = Number.POSITIVE_INFINITY;
+
+        cards.forEach((card) => {
+          const rect = card.getBoundingClientRect();
+          const cardCenter = rect.left + rect.width / 2;
+          const distance = Math.abs(scrollerCenter - cardCenter);
+          const index = Number(card.dataset.menuIndex);
+
+          if (distance < closestDistance) {
+            closestDistance = distance;
+            closestIndex = index;
+          }
+        });
+
+        setActiveIndex((prev) => (prev === closestIndex ? prev : closestIndex));
+        ticking = false;
+      });
+
+      ticking = true;
+    };
+
+    scroller.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => {
+      scroller.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
   return (
     <section
       id="meni"
@@ -118,11 +195,15 @@ export default function Meni() {
 
         {/* MOBILE */}
         <div className="mt-10 md:hidden">
-          <div className="-mx-4 overflow-x-auto px-4 snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div
+            ref={mobileScrollerRef}
+            className="-mx-4 overflow-x-auto px-4 snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          >
             <div className="flex gap-4 pr-4">
               {menuDays.map((item, index) => (
                 <button
                   key={item.day}
+                  data-menu-index={index}
                   type="button"
                   onClick={() => setActiveIndex(index)}
                   className={`w-[84vw] max-w-[360px] shrink-0 snap-center rounded-[28px] border px-5 py-6 text-left shadow-[0_12px_30px_rgba(20,55,35,0.08)] transition ${

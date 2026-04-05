@@ -62,7 +62,7 @@ export default function Kontakt() {
       if (!res.ok) {
         throw new Error(
           data.error ||
-          "Došlo je do greške prilikom slanja upita. Molimo pokušajte ponovo ili nas kontaktirajte direktno putem telefona."
+            "Došlo je do greške prilikom slanja upita. Molimo pokušajte ponovo ili nas kontaktirajte direktno putem telefona."
         );
       }
 
@@ -97,7 +97,7 @@ export default function Kontakt() {
   return (
     <section
       id="kontakt"
-      className="relative scroll-mt-[var(--header-offset)] overflow-hidden bg-[#1b3429] py-16 sm:py-20 lg:py-24"
+      className="relative scroll-mt-[calc(var(--header-offset)+10px)] overflow-hidden bg-[#1b3429] py-10 sm:py-20 lg:py-24"
     >
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute inset-0 bg-[linear-gradient(180deg,#1a3328_0%,#1d372c_22%,#213d31_48%,#244336_72%,#27483a_100%)]" />
@@ -113,18 +113,18 @@ export default function Kontakt() {
             Zatražite ponudu
           </span>
 
-          <h2 className="mt-5 text-3xl font-semibold leading-tight text-white sm:text-4xl lg:text-5xl">
+          <h2 className="mt-4 text-3xl font-semibold leading-tight text-white sm:mt-5 sm:text-4xl lg:text-5xl">
             Recite nam šta vam je potrebno
           </h2>
 
-          <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-white/78 sm:text-lg">
+          <p className="mx-auto mt-3 max-w-2xl text-base leading-relaxed text-white/78 sm:mt-4 sm:text-lg">
             Za dnevne i nedeljne obroke, model saradnje za firmu ili ketering
             ponudu. Pošaljite podatke, a mi vam se javljamo sa jasnim i
             konkretnim predlogom.
           </p>
         </div>
 
-        <div className="mt-10 grid gap-4 sm:mt-12 sm:gap-5 lg:grid-cols-3">
+        <div className="mt-8 grid gap-4 sm:mt-12 sm:gap-5 lg:grid-cols-3">
           <div className="rounded-[26px] border border-white/18 bg-white/[0.14] p-5 shadow-[0_28px_90px_rgba(0,0,0,0.24)] backdrop-blur-2xl sm:p-6">
             <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#d9c2a0]">
               Direktan kontakt
@@ -588,14 +588,13 @@ export default function Kontakt() {
                   />
                 </div>
 
-                <div className="flex flex-col gap-4 border-t border-white/10 pt-6 sm:pt-7 md:flex-row md:items-center md:justify-between ">
+                <div className="flex flex-col gap-4 border-t border-white/10 pt-6 sm:pt-7 md:flex-row md:items-center md:justify-between">
                   <button
                     type="submit"
                     disabled={loading}
-                    className="inline-flex min-h-[54px] w-full items-center justify-center rounded-lg border border-[#d6c1a0] bg-white px-7 py-3 text-sm font-semibold text-[#1f3d2b] transition-all duration-200 hover:border-[#cbb38d] hover:bg-[#f9f7f2] md:w-auto shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
+                    className="inline-flex min-h-[54px] w-full items-center justify-center rounded-lg border border-[#d6c1a0] bg-white px-7 py-3 text-sm font-semibold text-[#1f3d2b] shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-all duration-200 hover:border-[#cbb38d] hover:bg-[#f9f7f2] md:w-auto"
                   >
                     {loading ? "Obrada..." : "Zatražite ponudu"}
-
                   </button>
 
                   <p className="max-w-md text-sm leading-relaxed text-white/66 md:text-right">
@@ -605,10 +604,11 @@ export default function Kontakt() {
 
                 {status !== "idle" && (
                   <div
-                    className={`rounded-2xl border px-4 py-3 text-sm leading-relaxed sm:text-base ${status === "success"
-                      ? "border-[#4e7a59] bg-[#1e3a29]/90 text-[#d7f1dc]"
-                      : "border-[#7f4141] bg-[#3a1f1f]/90 text-[#ffd2d2]"
-                      }`}
+                    className={`rounded-2xl border px-4 py-3 text-sm leading-relaxed sm:text-base ${
+                      status === "success"
+                        ? "border-[#4e7a59] bg-[#1e3a29]/90 text-[#d7f1dc]"
+                        : "border-[#7f4141] bg-[#3a1f1f]/90 text-[#ffd2d2]"
+                    }`}
                   >
                     {statusMessage}
                   </div>
@@ -625,17 +625,10 @@ export default function Kontakt() {
 const mainPanelClassName =
   "relative overflow-hidden rounded-[30px] border border-white/14 bg-white/[0.08] shadow-[0_28px_90px_rgba(0,0,0,0.24)] backdrop-blur-2xl";
 
-const panelClassName =
-  "rounded-[26px] border border-white/14 bg-white/[0.08] shadow-[0_28px_90px_rgba(0,0,0,0.24)] backdrop-blur-2xl p-5 sm:p-6";
-
-const innerPanelClassName =
-  "block rounded-2xl border border-white/12 bg-white/[0.10] px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-md transition hover:border-[#d6c1a0]/40 hover:bg-white/[0.13]";
-
 const autofillClass =
   "[&:-webkit-autofill]:[-webkit-text-fill-color:#1f1f1c] [&:-webkit-autofill]:shadow-[inset_0_0_0px_1000px_rgba(255,255,255,0.92)] [&:-webkit-autofill:hover]:shadow-[inset_0_0_0px_1000px_rgba(255,255,255,0.92)] [&:-webkit-autofill:focus]:shadow-[inset_0_0_0px_1000px_rgba(255,255,255,0.96)]";
 
-const inputClassName =
-  `h-[56px] w-full rounded-2xl border border-white/12 bg-white/90 px-4 text-[15px] text-[#1f1f1c] caret-[#1f1f1c] outline-none shadow-[inset_0_1px_0_rgba(255,255,255,0.35)] backdrop-blur-md transition placeholder:text-[#7a7a72] focus:border-[#d6c1a0]/55 focus:bg-white focus:text-[#1f1f1c] focus:ring-4 focus:ring-[#d6c1a0]/12 ${autofillClass}`;
+const inputClassName = `h-[56px] w-full rounded-2xl border border-white/12 bg-white/90 px-4 text-[15px] text-[#1f1f1c] caret-[#1f1f1c] outline-none shadow-[inset_0_1px_0_rgba(255,255,255,0.35)] backdrop-blur-md transition placeholder:text-[#7a7a72] focus:border-[#d6c1a0]/55 focus:bg-white focus:text-[#1f1f1c] focus:ring-4 focus:ring-[#d6c1a0]/12 ${autofillClass}`;
 
 const selectClassName =
   "h-[56px] w-full appearance-none rounded-2xl border border-white/12 bg-white/90 px-4 pr-12 text-[15px] text-[#1f1f1c] outline-none shadow-[inset_0_1px_0_rgba(255,255,255,0.35)] backdrop-blur-md transition focus:border-[#d6c1a0]/55 focus:bg-white focus:text-[#1f1f1c] focus:ring-4 focus:ring-[#d6c1a0]/12";
