@@ -16,13 +16,13 @@ export default function Ketering() {
           className="object-cover object-[72%_78%]"
         />
 
-        <div className="absolute inset-0 bg-black/28 sm:bg-black/18" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/78 via-black/38 to-transparent sm:from-black/48 sm:via-black/15 sm:to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/6 to-black/24 sm:from-black/12 sm:via-transparent sm:to-black/18" />
+        <div className="absolute inset-0 bg-black/12 sm:bg-black/14 lg:bg-black/18" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/42 via-black/16 to-transparent sm:from-black/44 sm:via-black/16 lg:from-black/52 lg:via-black/22 lg:to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/8 via-transparent to-black/14 sm:from-black/8 sm:to-black/16 lg:from-black/10 lg:to-black/18" />
 
         <div className="relative z-10 mx-auto flex h-full w-full max-w-7xl items-center px-4 py-8 sm:px-6 sm:py-12 lg:px-8 lg:py-16">
-          <div className="max-w-[320px] rounded-[20px] bg-black/18 p-4 text-white backdrop-blur-[2px] sm:max-w-[540px] sm:bg-transparent sm:p-0 sm:backdrop-blur-0 lg:ml-6">
-            <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-white/78 sm:text-xs">
+          <div className="max-w-[320px] rounded-[22px] bg-black/14 p-4 text-white backdrop-blur-[2px] sm:max-w-[540px] sm:bg-transparent sm:p-0 sm:backdrop-blur-0 lg:ml-6">
+            <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-white/80 sm:text-xs">
               Ketering
             </p>
 
