@@ -17,6 +17,9 @@ export async function POST(req: Request) {
   try {
     const apiKey = process.env.RESEND_API_KEY;
 
+    console.log("ENV CHECK:", !!apiKey);
+    console.log("ENV VALUE START:", apiKey?.slice(0, 5));
+
     if (!apiKey) {
       console.error("RESEND_API_KEY nije postavljen.");
       return Response.json(
