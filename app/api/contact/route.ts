@@ -207,13 +207,7 @@ Kuća domaće hrane
     });
 
     if (userResult.error) {
-      return Response.json(
-        {
-          error:
-            "Upit je primljen, ali potvrda korisniku trenutno nije poslata.",
-        },
-        { status: 500 }
-      );
+      console.error("Auto potvrda korisniku nije poslata:", userResult.error);
     }
 
     return Response.json({ success: true }, { status: 200 });
