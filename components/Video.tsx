@@ -2,491 +2,418 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
-const menuDays = [
-  {
-    day: "Ponedeljak",
-    short: "Pon",
-    accent: "bg-[#eef2ed]",
-    items: [
-      "Bistra pileća supa",
-      "Juneći gulaš sa domaćim pireom",
-      "Sezonska salata",
-      "Domaći hleb",
-    ],
-  },
-  {
-    day: "Utorak",
-    short: "Uto",
-    accent: "bg-[#eef2ed]",
-    items: [
-      "Teleća čorba",
-      "Punjene paprike u sosu",
-      "Kupus salata",
-      "Hleb ili proja",
-    ],
-  },
-  {
-    day: "Sreda",
-    short: "Sre",
-    accent: "bg-[#eef2ed]",
-    items: [
-      "Krem čorba od tikvica",
-      "Pečena piletina sa krompirom",
-      "Šopska salata",
-      "Pogača",
-    ],
-  },
-  {
-    day: "Četvrtak",
-    short: "Čet",
-    accent: "bg-[#eef2ed]",
-    items: [
-      "Goveđa supa sa rezancima",
-      "Juneće ćufte u domaćem sosu",
-      "Pire krompir",
-      "Domaći hleb",
-    ],
-  },
-  {
-    day: "Petak",
-    short: "Pet",
-    accent: "bg-[#eef2ed]",
-    items: [
-      "Riblja čorba",
-      "Oslić sa krompir salatom",
-      "Zelena salata",
-      "Proja ili pita",
-    ],
-  },
+type VideoItem = {
+  id: number;
+  title: string;
+  videoSrc: string;
+};
+
+const videoItems: VideoItem[] = [
+  { id: 1, title: "Priprema domaćih obroka", videoSrc: "/video/video-1.mp4" },
+  { id: 2, title: "Domaća kuhinja za firme", videoSrc: "/video/video-2.mp4" },
+  { id: 3, title: "Uredno serviranje", videoSrc: "/video/video-3.mp4" },
+  { id: 4, title: "Pakovanje obroka", videoSrc: "/video/video-4.mp4" },
+  { id: 5, title: "Topla domaća hrana", videoSrc: "/video/video-5.mp4" },
+  { id: 6, title: "Dnevni meni za kancelarije", videoSrc: "/video/video-6.mp4" },
+  { id: 7, title: "Kuvanje u toku dana", videoSrc: "/video/video-7.mp4" },
+  { id: 8, title: "Detalji pripreme", videoSrc: "/video/video-8.mp4" },
+  { id: 9, title: "Obroci za timove", videoSrc: "/video/video-9.mp4" },
+  { id: 10, title: "Bez stresa do toplog obroka", videoSrc: "/video/video-10.mp4" },
 ];
 
-function wrapIndex(index: number, length: number) {
-  return (index + length) % length;
+function wrapIndex(index: number, total: number) {
+  return (index + total) % total;
 }
 
-type MenuDay = (typeof menuDays)[number];
-
-export default function Meni() {
+export default function Video() {
   const [activeIndex, setActiveIndex] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [failedVideos, setFailedVideos] = useState<Record<string, boolean>>({});
 
+  const desktopScrollerRef = useRef<HTMLDivElement | null>(null);
   const mobileScrollerRef = useRef<HTMLDivElement | null>(null);
+  const lightboxVideoRef = useRef<HTMLVideoElement | null>(null);
+  const cardVideoRefs = useRef<Record<number, HTMLVideoElement | null>>({});
 
-  const total = menuDays.length;
+  const activeItem = useMemo(() => videoItems[activeIndex], [activeIndex]);
 
-  const prevIndex = useMemo(
-    () => wrapIndex(activeIndex - 1, total),
-    [activeIndex, total]
-  );
+  const goPrev = () => {
+    setActiveIndex((prev) => wrapIndex(prev - 1, videoItems.length));
+  };
 
-  const nextIndex = useMemo(
-    () => wrapIndex(activeIndex + 1, total),
-    [activeIndex, total]
-  );
+  const goNext = () => {
+    setActiveIndex((prev) => wrapIndex(prev + 1, videoItems.length));
+  };
+
+  const scrollCardInsideScroller = (index: number) => {
+    const desktopScroller = desktopScrollerRef.current;
+    const mobileScroller = mobileScrollerRef.current;
+
+    if (desktopScroller) {
+      const desktopCard = desktopScroller.querySelector(
+        `[data-video-index="${index}"]`
+      ) as HTMLElement | null;
+
+      if (desktopCard) {
+        const scrollerRect = desktopScroller.getBoundingClientRect();
+        const cardRect = desktopCard.getBoundingClientRect();
+
+        const targetLeft =
+          desktopScroller.scrollLeft +
+          (cardRect.left - scrollerRect.left) -
+          (scrollerRect.width / 2 - cardRect.width / 2);
+
+        desktopScroller.scrollTo({
+          left: Math.max(0, targetLeft),
+          behavior: "smooth",
+        });
+      }
+    }
+
+    if (mobileScroller) {
+      const mobileCard = mobileScroller.querySelector(
+        `[data-video-index="${index}"]`
+      ) as HTMLElement | null;
+
+      if (mobileCard) {
+        const scrollerRect = mobileScroller.getBoundingClientRect();
+        const cardRect = mobileCard.getBoundingClientRect();
+
+        const targetLeft =
+          mobileScroller.scrollLeft +
+          (cardRect.left - scrollerRect.left) -
+          (scrollerRect.width / 2 - cardRect.width / 2);
+
+        mobileScroller.scrollTo({
+          left: Math.max(0, targetLeft),
+          behavior: "smooth",
+        });
+      }
+    }
+  };
+
+  const handleCardClick = (index: number) => {
+    setActiveIndex(index);
+    setLightboxOpen(true);
+  };
+
+  const handleVideoError = (src: string) => {
+    setFailedVideos((prev) => ({
+      ...prev,
+      [src]: true,
+    }));
+  };
 
   useEffect(() => {
-    if (isPaused) return;
+    const id = window.setTimeout(() => {
+      scrollCardInsideScroller(activeIndex);
+    }, 80);
 
-    const timer = setInterval(() => {
-      setActiveIndex((prev) => wrapIndex(prev + 1, total));
-    }, 4500);
-
-    return () => clearInterval(timer);
-  }, [isPaused, total]);
-
-  const goPrev = () => setActiveIndex((prev) => wrapIndex(prev - 1, total));
-  const goNext = () => setActiveIndex((prev) => wrapIndex(prev + 1, total));
-
-  useEffect(() => {
-    const scroller = mobileScrollerRef.current;
-    if (!scroller) return;
-
-    const activeCard = scroller.querySelector(
-      `[data-menu-index="${activeIndex}"]`
-    ) as HTMLElement | null;
-
-    if (!activeCard) return;
-
-    const scrollerRect = scroller.getBoundingClientRect();
-    const cardRect = activeCard.getBoundingClientRect();
-
-    const targetLeft =
-      scroller.scrollLeft +
-      (cardRect.left - scrollerRect.left) -
-      (scrollerRect.width / 2 - cardRect.width / 2);
-
-    scroller.scrollTo({
-      left: Math.max(0, targetLeft),
-      behavior: "smooth",
-    });
+    return () => window.clearTimeout(id);
   }, [activeIndex]);
 
   useEffect(() => {
-    const scroller = mobileScrollerRef.current;
-    if (!scroller) return;
+    const activeVideo = cardVideoRefs.current[activeIndex];
+    if (!activeVideo) return;
+    if (failedVideos[activeItem.videoSrc]) return;
 
-    let ticking = false;
+    activeVideo.currentTime = 0;
+    void activeVideo.play().catch(() => {});
+  }, [activeIndex, activeItem.videoSrc, failedVideos]);
 
-    const handleScroll = () => {
-      if (ticking) return;
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (!lightboxOpen) return;
 
-      window.requestAnimationFrame(() => {
-        const cards = Array.from(
-          scroller.querySelectorAll<HTMLElement>("[data-menu-index]")
-        );
-
-        if (!cards.length) {
-          ticking = false;
-          return;
-        }
-
-        const scrollerRect = scroller.getBoundingClientRect();
-        const scrollerCenter = scrollerRect.left + scrollerRect.width / 2;
-
-        let closestIndex = 0;
-        let closestDistance = Number.POSITIVE_INFINITY;
-
-        cards.forEach((card) => {
-          const rect = card.getBoundingClientRect();
-          const cardCenter = rect.left + rect.width / 2;
-          const distance = Math.abs(scrollerCenter - cardCenter);
-          const index = Number(card.dataset.menuIndex);
-
-          if (distance < closestDistance) {
-            closestDistance = distance;
-            closestIndex = index;
-          }
-        });
-
-        setActiveIndex((prev) => (prev === closestIndex ? prev : closestIndex));
-        ticking = false;
-      });
-
-      ticking = true;
+      if (event.key === "Escape") setLightboxOpen(false);
+      if (event.key === "ArrowLeft") goPrev();
+      if (event.key === "ArrowRight") goNext();
     };
 
-    scroller.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("keydown", handleKeyDown);
+
+    if (lightboxOpen) {
+      document.body.style.overflow = "hidden";
+      const video = lightboxVideoRef.current;
+      if (video && !failedVideos[activeItem.videoSrc]) {
+        void video.play().catch(() => {});
+      }
+    } else {
+      document.body.style.overflow = "";
+    }
 
     return () => {
-      scroller.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "";
     };
-  }, []);
+  }, [lightboxOpen, activeItem.videoSrc, failedVideos]);
+
+  const renderFallback = (item: VideoItem) => (
+    <div className="absolute inset-0 bg-[linear-gradient(180deg,#214232_0%,#173326_100%)]">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_50%)]" />
+      <div className="absolute inset-x-0 top-0 h-px bg-white/20" />
+
+      <div className="absolute right-3 top-3 rounded-full border border-white/10 bg-black/15 px-2.5 py-1 text-[10px] uppercase tracking-[0.16em] text-white/75 backdrop-blur-sm">
+        Video
+      </div>
+
+      <div className="absolute inset-x-0 bottom-0 p-3.5 sm:p-5">
+        <p className="text-sm font-semibold leading-tight text-white sm:text-lg">
+          {item.title}
+        </p>
+      </div>
+    </div>
+  );
+
+  const renderCard = (
+    item: VideoItem,
+    index: number,
+    mode: "desktop" | "mobile"
+  ) => {
+    const isMobile = mode === "mobile";
+    const isActive = index === activeIndex;
+
+    return (
+      <button
+        key={`${mode}-${item.id}`}
+        data-video-index={index}
+        type="button"
+        onClick={() => handleCardClick(index)}
+        className={[
+          "group relative shrink-0 overflow-hidden rounded-[22px] border border-white/14 text-left transition-[transform,border-color,box-shadow,opacity] duration-300 ease-out",
+          "focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40",
+          isMobile
+            ? [
+                "snap-center",
+                "w-[78vw] min-w-[78vw] max-w-[300px]",
+                isActive
+                  ? "border-white/24 shadow-[0_20px_40px_rgba(0,0,0,0.18)] opacity-100"
+                  : "border-white/12 opacity-85",
+              ].join(" ")
+            : [
+                "w-[160px] sm:w-[185px] md:w-[210px] lg:w-[calc((100%-3.75rem)/4)]",
+                "hover:border-white/22 hover:translate-y-[-2px]",
+              ].join(" "),
+        ].join(" ")}
+        aria-label={`Otvori video ${item.title}`}
+      >
+        <div className="relative aspect-[9/16] w-full overflow-hidden">
+          {failedVideos[item.videoSrc] ? (
+            renderFallback(item)
+          ) : (
+            <>
+              <video
+                ref={(el) => {
+                  if (isActive) {
+                    cardVideoRefs.current[index] = el;
+                  }
+                }}
+                className="h-full w-full object-cover"
+                src={item.videoSrc}
+                muted
+                loop
+                playsInline
+                autoPlay={isActive}
+                preload={isActive ? "metadata" : "none"}
+                onLoadedData={(e) => {
+                  if (isActive) {
+                    void e.currentTarget.play().catch(() => {});
+                  }
+                }}
+                onError={() => handleVideoError(item.videoSrc)}
+              />
+              <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_top,rgba(6,14,10,0.58),rgba(6,14,10,0.14)_46%,rgba(6,14,10,0.08))]" />
+            </>
+          )}
+
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-white/20" />
+
+          <div className="absolute right-3 top-3 rounded-full border border-white/10 bg-black/15 px-2.5 py-1 text-[10px] uppercase tracking-[0.16em] text-white/75 backdrop-blur-sm">
+            Video
+          </div>
+
+          <div className="absolute inset-x-0 bottom-0 p-3.5 sm:p-5">
+            <p className="text-sm font-semibold leading-tight text-white sm:text-lg">
+              {item.title}
+            </p>
+          </div>
+        </div>
+      </button>
+    );
+  };
 
   return (
-    <section
-      id="meni"
-      className="scroll-mt-[var(--header-offset)] w-full bg-[#f7f6f2] px-4 py-16 sm:px-6 lg:px-8"
-    >
-      <div className="mx-auto max-w-7xl">
-        <div className="mx-auto max-w-3xl text-center">
-          <div className="mb-3 text-sm font-medium uppercase tracking-[0.18em] text-[#295135]">
-            Primer menija
-          </div>
+    <>
+      <section
+        id="video"
+        className="overflow-hidden bg-[#173326] py-12 sm:py-20 lg:py-24"
+      >
+        <div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-10">
+          <div className="mx-auto max-w-[1440px]">
+            <div className="flex items-start justify-between gap-4 sm:gap-6">
+              <div className="max-w-5xl">
+                <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-white/62 sm:text-xs">
+                  Video priča
+                </p>
 
-          <h2 className="text-3xl font-semibold tracking-tight text-[#183222] sm:text-4xl lg:text-5xl">
-            Kako izgleda nedelja domaćih obroka
-          </h2>
+                <h2 className="mt-3 max-w-6xl text-[34px] font-semibold leading-[1.04] tracking-tight text-white sm:text-4xl lg:text-5xl">
+                  Domaća kuhinja za firme koja izgleda toplo, uredno, kvalitetno i
+                  pouzdano u svakom koraku
+                </h2>
+              </div>
 
-          <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-[#4f5f53] sm:text-lg">
-            Pregledno, uredno i prilagođeno firmama — svaki dan sveže kuvano,
-            sa jasnim ritmom isporuke i mogućnošću dogovora.
-          </p>
-        </div>
-
-        {/* MOBILE */}
-        <div className="mt-10 md:hidden">
-          <div
-            ref={mobileScrollerRef}
-            className="-mx-4 overflow-x-auto px-4 snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-          >
-            <div className="flex gap-4 pr-4">
-              {menuDays.map((item, index) => (
-                <button
-                  key={item.day}
-                  data-menu-index={index}
-                  type="button"
-                  onClick={() => setActiveIndex(index)}
-                  className={`w-[84vw] max-w-[360px] shrink-0 snap-center rounded-[28px] border px-5 py-6 text-left shadow-[0_12px_30px_rgba(20,55,35,0.08)] transition ${
-                    index === activeIndex
-                      ? "border-[#d8ddd6] bg-[#eef2ed]"
-                      : "border-[#e3e5df] bg-[#f4f6f3]"
-                  }`}
-                  aria-label={item.day}
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="text-[10px] font-medium uppercase tracking-[0.2em] text-[#295135]/80">
-                      Kuća domaće hrane
-                    </div>
-
-                    <div className="rounded-full border border-[#cfd6cf] bg-white/90 px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-[#295135]">
-                      Dnevni meni
-                    </div>
-                  </div>
-
-                  <h3 className="mt-3 text-[28px] font-semibold tracking-tight text-[#183222]">
-                    {item.day}
-                  </h3>
-
-                  <div className="mt-4 h-px w-full bg-[#e1e4de]" />
-
-                  <div className="mt-4 grid gap-2.5">
-                    {item.items.map((food, foodIndex) => (
-                      <div
-                        key={food}
-                        className="flex items-start gap-3 rounded-2xl bg-white px-4 py-3"
-                      >
-                        <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#295135] text-xs font-semibold text-white">
-                          {foodIndex + 1}
-                        </div>
-
-                        <div className="text-sm leading-relaxed text-[#213729]">
-                          {food}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </button>
-              ))}
+              <p className="hidden shrink-0 pt-1 text-sm text-white/70 md:block">
+                {String(activeIndex + 1).padStart(2, "0")} /{" "}
+                {String(videoItems.length).padStart(2, "0")}
+              </p>
             </div>
-          </div>
 
-          <div className="mt-5 flex items-center justify-center gap-2">
-            {menuDays.map((item, index) => (
-              <button
-                key={item.day}
-                type="button"
-                onClick={() => setActiveIndex(index)}
-                aria-label={item.day}
-                className={`h-2.5 rounded-full transition-all duration-300 ${
-                  index === activeIndex
-                    ? "w-10 bg-[#295135]"
-                    : "w-2.5 bg-[#b8c1b9]"
-                }`}
-              />
-            ))}
-          </div>
+            <div className="mt-6 h-px w-full bg-white/18" />
 
-          <div className="mt-6 grid grid-cols-5 gap-2 sm:gap-3">
-            {menuDays.map((item, index) => (
-              <button
-                key={item.day}
-                type="button"
-                onClick={() => setActiveIndex(index)}
-                className={`rounded-2xl border px-2 py-3 text-center text-xs font-medium transition-all sm:px-3 sm:text-sm ${
-                  index === activeIndex
-                    ? "border-[#295135] bg-[#295135] text-white shadow-md"
-                    : "border-[#d8ddd6] bg-white text-[#2c4d36] hover:border-[#c7d0c8] hover:bg-[#fafbf9]"
-                }`}
-              >
-                {item.short}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* DESKTOP / TABLET */}
-        <div
-          className="relative mt-12 hidden md:block"
-          onMouseEnter={() => setIsPaused(true)}
-          onMouseLeave={() => setIsPaused(false)}
-        >
-          <div className="relative overflow-hidden rounded-[32px] border border-[#e3e5df] bg-white px-3 py-6 shadow-[0_10px_40px_rgba(20,55,35,0.08)] sm:px-6 sm:py-8 lg:px-10 lg:py-10">
-            <div className="relative flex items-center justify-center">
+            <div className="relative mt-7 sm:mt-10">
               <button
                 type="button"
                 onClick={goPrev}
-                aria-label="Prethodni dan"
-                className="absolute left-0 z-20 hidden h-11 w-11 items-center justify-center rounded-full border border-[#d9dfd8] bg-white text-[#295135] shadow-[0_8px_20px_rgba(20,55,35,0.14)] transition duration-300 hover:scale-105 hover:bg-[#f7f8f5] md:flex sm:left-2 sm:h-12 sm:w-12 lg:left-4 lg:h-14 lg:w-14"
+                className="absolute left-0 top-1/2 z-20 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/12 bg-[#10261c] text-xl text-white shadow-[0_10px_24px_rgba(0,0,0,0.18)] transition duration-200 hover:bg-[#0f2219] lg:flex"
+                aria-label="Prethodni video"
               >
-                <span className="text-2xl leading-none">‹</span>
+                ←
               </button>
-
-              <div className="relative flex h-[380px] w-full items-center justify-center sm:h-[430px] lg:h-[500px]">
-                <MenuSideCard
-                  key={`prev-${menuDays[prevIndex].day}`}
-                  data={menuDays[prevIndex]}
-                  position="left"
-                  onClick={() => setActiveIndex(prevIndex)}
-                />
-
-                <MenuActiveCard
-                  key={`active-${menuDays[activeIndex].day}`}
-                  data={menuDays[activeIndex]}
-                />
-
-                <MenuSideCard
-                  key={`next-${menuDays[nextIndex].day}`}
-                  data={menuDays[nextIndex]}
-                  position="right"
-                  onClick={() => setActiveIndex(nextIndex)}
-                />
-              </div>
 
               <button
                 type="button"
                 onClick={goNext}
-                aria-label="Sledeći dan"
-                className="absolute right-0 z-20 hidden h-11 w-11 items-center justify-center rounded-full border border-[#d9dfd8] bg-white text-[#295135] shadow-[0_8px_20px_rgba(20,55,35,0.14)] transition duration-300 hover:scale-105 hover:bg-[#f7f8f5] md:flex sm:right-2 sm:h-12 sm:w-12 lg:right-4 lg:h-14 lg:w-14"
+                className="absolute right-0 top-1/2 z-20 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/12 bg-[#10261c] text-xl text-white shadow-[0_10px_24px_rgba(0,0,0,0.18)] transition duration-200 hover:bg-[#0f2219] lg:flex"
+                aria-label="Sledeći video"
               >
-                <span className="text-2xl leading-none">›</span>
+                →
               </button>
-            </div>
 
-            <div className="mt-6 flex items-center justify-center gap-2">
-              {menuDays.map((item, index) => (
-                <button
-                  key={item.day}
-                  type="button"
-                  onClick={() => setActiveIndex(index)}
-                  aria-label={item.day}
-                  className={`h-2.5 rounded-full transition-all duration-300 ${
-                    index === activeIndex
-                      ? "w-10 bg-[#295135]"
-                      : "w-2.5 bg-[#b8c1b9] hover:bg-[#8ea892]"
-                  }`}
-                />
-              ))}
-            </div>
-
-            <div className="mt-6 grid grid-cols-5 gap-2 sm:gap-3">
-              {menuDays.map((item, index) => (
-                <button
-                  key={item.day}
-                  type="button"
-                  onClick={() => setActiveIndex(index)}
-                  className={`rounded-2xl border px-2 py-3 text-center text-xs font-medium transition-all sm:px-3 sm:text-sm lg:text-base ${
-                    index === activeIndex
-                      ? "border-[#295135] bg-[#295135] text-white shadow-md"
-                      : "border-[#d8ddd6] bg-white text-[#2c4d36] hover:border-[#c7d0c8] hover:bg-[#fafbf9]"
-                  }`}
+              <div className="hidden lg:block lg:px-20 xl:px-24">
+                <div
+                  ref={desktopScrollerRef}
+                  className="-mx-4 overflow-x-auto px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
                 >
-                  {item.short}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-10 grid gap-4 md:grid-cols-3">
-          <div className="rounded-[24px] border border-[#e3e5df] bg-white p-6 shadow-[0_8px_24px_rgba(20,55,35,0.05)]">
-            <div className="text-lg font-semibold text-[#183222]">
-              Dnevni obrok
-            </div>
-            <p className="mt-2 text-sm leading-relaxed text-[#56665a] sm:text-base">
-              Kompletan ručak za radni dan — kuvano jelo, prilog, salata i domaći
-              dodatak.
-            </p>
-          </div>
-
-          <div className="rounded-[24px] border border-[#e3e5df] bg-white p-6 shadow-[0_8px_24px_rgba(20,55,35,0.05)]">
-            <div className="text-lg font-semibold text-[#183222]">
-              Nedeljni plan
-            </div>
-            <p className="mt-2 text-sm leading-relaxed text-[#56665a] sm:text-base">
-              Jasno organizovan meni za celu radnu nedelju, bez svakodnevnog
-              dogovaranja.
-            </p>
-          </div>
-
-          <div className="rounded-[24px] border border-[#e3e5df] bg-white p-6 shadow-[0_8px_24px_rgba(20,55,35,0.05)]">
-            <div className="text-lg font-semibold text-[#183222]">
-              Po dogovoru
-            </div>
-            <p className="mt-2 text-sm leading-relaxed text-[#56665a] sm:text-base">
-              Poseban režim ishrane, posni dani i prilagođavanje potrebama firme i
-              tima.
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-6 text-center text-sm text-[#607065] sm:text-base">
-          Uz svaki obrok dolazi domaći hleb, proja ili pita.
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function MenuActiveCard({ data }: { data: MenuDay }) {
-  return (
-    <div
-      className={`relative z-10 w-full max-w-[90%] sm:max-w-[78%] lg:max-w-[700px] rounded-[28px] sm:rounded-[34px] border border-[#e3e5df] ${data.accent} px-5 py-6 shadow-[0_18px_50px_rgba(20,55,35,0.12)] transition-all duration-500 ease-out sm:px-8 sm:py-8 lg:px-10 lg:py-10`}
-    >
-      <div className="absolute right-3 top-3 rounded-full border border-[#cfd6cf] bg-white/90 px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-[#295135] sm:right-5 sm:top-5 sm:px-3 sm:text-xs">
-        Dnevni meni
-      </div>
-
-      <div className="pr-0 sm:pr-16">
-        <div className="text-[10px] font-medium uppercase tracking-[0.2em] text-[#295135]/80 sm:text-xs">
-          Kuća domaće hrane
-        </div>
-
-        <h3 className="mt-2 text-2xl font-semibold tracking-tight text-[#183222] sm:mt-3 sm:text-4xl lg:text-5xl">
-          {data.day}
-        </h3>
-
-        <div className="mt-4 h-px w-full bg-[#e1e4de] sm:mt-6" />
-
-        <div className="mt-4 grid gap-2.5 sm:mt-6 sm:gap-3">
-          {data.items.map((item, index) => (
-            <div
-              key={item}
-              className="flex items-start gap-2.5 rounded-xl bg-white px-3 py-2.5 text-left sm:gap-3 sm:rounded-2xl sm:px-4 sm:py-3"
-            >
-              <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#295135] text-[10px] font-semibold text-white sm:h-6 sm:w-6 sm:text-xs">
-                {index + 1}
+                  <div className="flex items-stretch gap-3 pb-1 sm:gap-4 lg:gap-5">
+                    {videoItems.map((item, index) =>
+                      renderCard(item, index, "desktop")
+                    )}
+                  </div>
+                </div>
               </div>
 
-              <div className="text-sm leading-relaxed text-[#213729] sm:text-base lg:text-lg">
-                {item}
+              <div className="lg:hidden">
+                <div
+                  ref={mobileScrollerRef}
+                  className="-mx-4 overflow-x-auto px-4 [scrollbar-width:none] snap-x snap-mandatory scroll-px-4 [&::-webkit-scrollbar]:hidden"
+                >
+                  <div className="flex gap-4 pr-8">
+                    <div className="w-[4px] shrink-0" />
+                    {videoItems.map((item, index) =>
+                      renderCard(item, index, "mobile")
+                    )}
+                    <div className="w-[18vw] max-w-[72px] shrink-0" />
+                  </div>
+                </div>
+
+                <div className="mt-6 flex items-center justify-between">
+                  <button
+                    type="button"
+                    onClick={goPrev}
+                    className="flex h-10 w-10 items-center justify-center rounded-full border border-white/12 bg-[#10261c] text-lg text-white transition hover:bg-[#0f2219]"
+                    aria-label="Prethodni video"
+                  >
+                    ←
+                  </button>
+
+                  <p className="text-sm text-white/70">
+                    {String(activeIndex + 1).padStart(2, "0")} /{" "}
+                    {String(videoItems.length).padStart(2, "0")}
+                  </p>
+
+                  <button
+                    type="button"
+                    onClick={goNext}
+                    className="flex h-10 w-10 items-center justify-center rounded-full border border-white/12 bg-[#10261c] text-lg text-white transition hover:bg-[#0f2219]"
+                    aria-label="Sledeći video"
+                  >
+                    →
+                  </button>
+                </div>
               </div>
             </div>
-          ))}
+          </div>
         </div>
-      </div>
-    </div>
-  );
-}
+      </section>
 
-function MenuSideCard({
-  data,
-  position,
-  onClick,
-}: {
-  data: MenuDay;
-  position: "left" | "right";
-  onClick: () => void;
-}) {
-  const isLeft = position === "left";
-
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-label={data.day}
-      className={`absolute top-1/2 z-0 hidden -translate-y-1/2 overflow-hidden rounded-[28px] border border-[#e3e5df] ${data.accent} p-5 text-left shadow-[0_10px_30px_rgba(20,55,35,0.08)] transition-all duration-500 ease-out hover:scale-[1.02] md:block md:h-[300px] md:w-[155px] lg:h-[370px] lg:w-[210px] ${
-        isLeft ? "left-[7%] lg:left-[9%]" : "right-[7%] lg:right-[9%]"
-      }`}
-    >
-      <div className="relative h-full">
-        <div className="text-xs font-medium uppercase tracking-[0.2em] text-[#295135]/75">
-          {data.short}
-        </div>
-
+      {lightboxOpen && (
         <div
-          className={`absolute left-1/2 top-1/2 text-[34px] font-semibold uppercase tracking-tight text-[#24412d]/85 md:text-[36px] lg:text-[50px] ${
-            isLeft
-              ? "-translate-x-1/2 -translate-y-1/2 -rotate-90"
-              : "-translate-x-1/2 -translate-y-1/2 rotate-90"
-          }`}
+          className="fixed inset-0 z-[120] flex items-center justify-center bg-black/88 px-4 py-6"
+          onClick={() => setLightboxOpen(false)}
         >
-          {data.day}
-        </div>
+          <button
+            type="button"
+            onClick={() => setLightboxOpen(false)}
+            className="absolute right-4 top-4 z-[130] flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-white/10 text-2xl text-white backdrop-blur-md transition hover:bg-white/20"
+            aria-label="Zatvori"
+          >
+            ×
+          </button>
 
-        <div className="absolute bottom-0 left-0 right-0 text-xs leading-relaxed text-[#295135]/70">
-          {data.items[0]}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              goPrev();
+            }}
+            className="absolute left-3 top-1/2 z-[130] flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-white/10 text-xl text-white backdrop-blur-md transition hover:bg-white/20 sm:left-5 sm:h-12 sm:w-12"
+            aria-label="Prethodni video"
+          >
+            ←
+          </button>
+
+          <div
+            className="relative w-full max-w-6xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="relative mx-auto aspect-video overflow-hidden rounded-[28px] bg-[#111] shadow-[0_20px_60px_rgba(0,0,0,0.30)]">
+              {failedVideos[activeItem.videoSrc] ? (
+                renderFallback(activeItem)
+              ) : (
+                <video
+                  ref={lightboxVideoRef}
+                  key={`lightbox-${activeItem.videoSrc}`}
+                  className="h-full w-full object-contain bg-[#111]"
+                  src={activeItem.videoSrc}
+                  muted
+                  loop
+                  playsInline
+                  controls
+                  autoPlay
+                  preload="metadata"
+                  onError={() => handleVideoError(activeItem.videoSrc)}
+                />
+              )}
+            </div>
+
+            <p className="mt-4 text-center text-sm text-white/80 sm:text-base">
+              {activeItem.title}
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              goNext();
+            }}
+            className="absolute right-3 top-1/2 z-[130] flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-white/10 text-xl text-white backdrop-blur-md transition hover:bg-white/20 sm:right-5 sm:h-12 sm:w-12"
+            aria-label="Sledeći video"
+          >
+            →
+          </button>
         </div>
-      </div>
-    </button>
+      )}
+    </>
   );
 }

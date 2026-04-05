@@ -68,8 +68,6 @@ type MenuDay = (typeof menuDays)[number];
 
 export default function Meni() {
   const [activeIndex, setActiveIndex] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
-
   const mobileScrollerRef = useRef<HTMLDivElement | null>(null);
 
   const total = menuDays.length;
@@ -83,16 +81,6 @@ export default function Meni() {
     () => wrapIndex(activeIndex + 1, total),
     [activeIndex, total]
   );
-
-  useEffect(() => {
-    if (isPaused) return;
-
-    const timer = setInterval(() => {
-      setActiveIndex((prev) => wrapIndex(prev + 1, total));
-    }, 4500);
-
-    return () => clearInterval(timer);
-  }, [isPaused, total]);
 
   const goPrev = () => setActiveIndex((prev) => wrapIndex(prev - 1, total));
   const goNext = () => setActiveIndex((prev) => wrapIndex(prev + 1, total));
@@ -125,20 +113,17 @@ export default function Meni() {
     const scroller = mobileScrollerRef.current;
     if (!scroller) return;
 
-    let ticking = false;
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
 
     const handleScroll = () => {
-      if (ticking) return;
+      if (timeoutId) clearTimeout(timeoutId);
 
-      window.requestAnimationFrame(() => {
+      timeoutId = setTimeout(() => {
         const cards = Array.from(
           scroller.querySelectorAll<HTMLElement>("[data-menu-index]")
         );
 
-        if (!cards.length) {
-          ticking = false;
-          return;
-        }
+        if (!cards.length) return;
 
         const scrollerRect = scroller.getBoundingClientRect();
         const scrollerCenter = scrollerRect.left + scrollerRect.width / 2;
@@ -158,17 +143,15 @@ export default function Meni() {
           }
         });
 
-        setActiveIndex((prev) => (prev === closestIndex ? prev : closestIndex));
-        ticking = false;
-      });
-
-      ticking = true;
+        setActiveIndex(closestIndex);
+      }, 80);
     };
 
     scroller.addEventListener("scroll", handleScroll, { passive: true });
 
     return () => {
       scroller.removeEventListener("scroll", handleScroll);
+      if (timeoutId) clearTimeout(timeoutId);
     };
   }, []);
 
@@ -285,11 +268,7 @@ export default function Meni() {
         </div>
 
         {/* DESKTOP / TABLET */}
-        <div
-          className="relative mt-12 hidden md:block"
-          onMouseEnter={() => setIsPaused(true)}
-          onMouseLeave={() => setIsPaused(false)}
-        >
+        <div className="relative mt-12 hidden md:block">
           <div className="relative overflow-hidden rounded-[32px] border border-[#e3e5df] bg-white px-3 py-6 shadow-[0_10px_40px_rgba(20,55,35,0.08)] sm:px-6 sm:py-8 lg:px-10 lg:py-10">
             <div className="relative flex items-center justify-center">
               <button
