@@ -1,36 +1,43 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Maka i Ika – domaća kuhinja
 
-## Getting Started
+Sajt je izrađen u Next.js-u i predstavlja javnu ponudu domaće kuhinje Maka i Ika na Banovom brdu. Trenutna implementacija je na radnoj grani i ne menja produkcijsku granu `main`.
 
-First, run the development server:
+## Pokretanje lokalno
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Za proveru produkcijske verzije koristite:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run lint
+npm run build
+npm run start
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Održavanje ponude i podataka
 
-## Learn More
+Svi podaci koji se često menjaju nalaze se u [`data/site.ts`](./data/site.ts). Tu se održavaju nedeljni jelovnik, dodatna jela dostupna danas, stalna ponuda, cene, prilozi, salate, porodična pakovanja, pite, kontakt, radno vreme i svi potvrđeni eksterni linkovi.
 
-To learn more about Next.js, take a look at the following resources:
+Za ručno dodavanje jela iz prethodnog dana u današnju ponudu dopunite niz `additionalTodayDishes`. Za označavanje rasprodatog jela postavite `soldOut: true` na odgovarajućem jelu. Dnevni prilozi se kontrolišu poljem `availableToday`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Zvanični brend resursi
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Izvorne, neizmenjene kopije zvaničnog logotipa nalaze se u `public/brand/`. Primarni znak za sajt je `makai-ika-zlatna.svg`. Alternativne bele i crne verzije služe za situacije u kojima je potreban drugačiji kontrast, dok se `makai-ika-social.png` koristi za društveni preview.
 
-## Deploy on Vercel
+## Kontakt-forma
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Za slanje email upita potrebne su promenljive okruženja:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Promenljiva | Namena |
+|---|---|
+| `RESEND_API_KEY` | API ključ Resend servisa; ne sme se javno objavljivati. |
+| `RESEND_FROM_EMAIL` | Pošiljalac sa verifikovanog domena. Ako nije podešen, koristi se razvojni Resend pošiljalac. |
+| `CONTACT_RECIPIENT_EMAIL` | Primalac upita; podrazumevano je poslovni email iz `data/site.ts`. |
+| `NEXT_PUBLIC_SITE_URL` | Potvrđeni javni URL sajta za apsolutne Open Graph adrese. Podesiti pre produkcijskog objavljivanja. |
+
+## Buduće fotografije i video
+
+Ne objavljuju se neautentične fotografije hrane. Kada budu spremni, originalni mediji se dodaju kroz `futureMedia` konfiguraciju u `data/site.ts`. Video treba da koristi `preload="metadata"` i ne treba da se automatski reprodukuje na mobilnim uređajima.

@@ -1,4 +1,23 @@
 import { Resend } from "resend";
+import { business } from "@/data/site";
+
+type InquiryType = "kupac" | "firma";
+
+type ContactPayload = {
+  inquiryType?: InquiryType;
+  company?: string;
+  name?: string;
+  phone?: string;
+  email?: string;
+  mealCount?: string;
+  location?: string;
+  message?: string;
+  website?: string;
+};
+
+const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
+const RATE_LIMIT_MAX_REQUESTS = 3;
+const requestsByIp = new Map<string, { count: number; startedAt: number }>();
 
 function escapeHtml(value: string) {
   return value
@@ -9,194 +28,129 @@ function escapeHtml(value: string) {
     .replaceAll("'", "&#039;");
 }
 
+function getString(value: unknown, maxLength: number) {
+  return String(value ?? "").trim().slice(0, maxLength);
+}
+
 function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
+function isRateLimited(ip: string) {
+  const now = Date.now();
+  const current = requestsByIp.get(ip);
+
+  if (!current || now - current.startedAt > RATE_LIMIT_WINDOW_MS) {
+    requestsByIp.set(ip, { count: 1, startedAt: now });
+    return false;
+  }
+
+  if (current.count >= RATE_LIMIT_MAX_REQUESTS) return true;
+
+  current.count += 1;
+  return false;
+}
+
+function clientIp(req: Request) {
+  return req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+}
+
 export async function POST(req: Request) {
+  const ip = clientIp(req);
+
+  if (isRateLimited(ip)) {
+    return Response.json(
+      { error: "Previše upita u kratkom periodu. Molimo pokušajte ponovo malo kasnije ili nas pozovite." },
+      { status: 429 }
+    );
+  }
+
   try {
-    const apiKey = process.env.RESEND_API_KEY;
+    const data = (await req.json()) as ContactPayload;
+    const inquiryType: InquiryType = data.inquiryType === "firma" ? "firma" : "kupac";
+    const website = getString(data.website, 200);
 
-    console.log("ENV CHECK:", !!apiKey);
-    console.log("ENV VALUE START:", apiKey?.slice(0, 5));
+    // Skriveno polje ostaje prazno kod stvarnih korisnika.
+    if (website) return Response.json({ success: true }, { status: 200 });
 
-    if (!apiKey) {
-      console.error("RESEND_API_KEY nije postavljen.");
-      return Response.json(
-        {
-          error:
-            "Došlo je do greške prilikom slanja upita. Molimo pokušajte ponovo kasnije.",
-        },
-        { status: 500 }
-      );
-    }
+    const company = getString(data.company, 120);
+    const name = getString(data.name, 120);
+    const phone = getString(data.phone, 50);
+    const email = getString(data.email, 160);
+    const mealCount = getString(data.mealCount, 30);
+    const location = getString(data.location, 180);
+    const message = getString(data.message, 3000);
 
-    const resend = new Resend(apiKey);
-
-    const data = await req.json();
-
-    const firma = String(data.firma || "").trim();
-    const ime = String(data.ime || "").trim();
-    const telefon = String(data.telefon || "").trim();
-    const email = String(data.email || "").trim();
-    const lokacija = String(data.lokacija || "").trim();
-    const brojZaposlenih = String(data.brojZaposlenih || "").trim();
-    const kadaTreba = String(data.kadaTreba || "").trim();
-    const tipUsluge = String(data.tipUsluge || "").trim();
-    const trenutniModel = String(data.trenutniModel || "").trim();
-    const poruka = String(data.poruka || "").trim();
-
-    const posebniRezim = Array.isArray(data.posebniRezim)
-      ? data.posebniRezim
-          .map((item: unknown) => String(item).trim())
-          .filter(Boolean)
-      : [];
-
-    if (
-      !firma ||
-      !ime ||
-      !telefon ||
-      !email ||
-      !lokacija ||
-      !brojZaposlenih ||
-      !kadaTreba ||
-      !tipUsluge
-    ) {
-      return Response.json(
-        { error: "Molimo popunite sva obavezna polja." },
-        { status: 400 }
-      );
+    if (!name || !phone || !email || !location || (inquiryType === "firma" && (!company || !mealCount))) {
+      return Response.json({ error: "Molimo popunite sva obavezna polja." }, { status: 400 });
     }
 
     if (!isValidEmail(email)) {
+      return Response.json({ error: "Unesite ispravnu email adresu." }, { status: 400 });
+    }
+
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) {
       return Response.json(
-        { error: "Unesite ispravnu email adresu." },
-        { status: 400 }
+        { error: "Slanje upita trenutno nije dostupno. Molimo pozovite nas direktno." },
+        { status: 503 }
       );
     }
 
-    const posebniRezimTekst =
-      posebniRezim.length > 0 ? posebniRezim.join(", ") : "Nije navedeno";
+    const safe = {
+      company: escapeHtml(company || "Nije primenljivo"),
+      name: escapeHtml(name),
+      phone: escapeHtml(phone),
+      email: escapeHtml(email),
+      mealCount: escapeHtml(mealCount || "Nije primenljivo"),
+      location: escapeHtml(location),
+      message: message ? escapeHtml(message).replaceAll("\n", "<br />") : "Nije navedeno",
+      inquiryType: inquiryType === "firma" ? "Ponuda za firmu" : "Direktna porudžbina / opšti upit",
+    };
 
-    const safeFirma = escapeHtml(firma);
-    const safeIme = escapeHtml(ime);
-    const safeTelefon = escapeHtml(telefon);
-    const safeEmail = escapeHtml(email);
-    const safeLokacija = escapeHtml(lokacija);
-    const safeBrojZaposlenih = escapeHtml(brojZaposlenih);
-    const safeKadaTreba = escapeHtml(kadaTreba);
-    const safeTipUsluge = escapeHtml(tipUsluge);
-    const safeTrenutniModel = trenutniModel
-      ? escapeHtml(trenutniModel)
-      : "Nije navedeno";
-    const safePosebniRezim = escapeHtml(posebniRezimTekst);
-    const safePoruka = poruka
-      ? escapeHtml(poruka).replaceAll("\n", "<br />")
-      : "Nije navedeno";
+    const rows = [
+      ["Vrsta upita", safe.inquiryType],
+      ...(inquiryType === "firma" ? [["Naziv firme", safe.company], ["Približan broj obroka", safe.mealCount]] : []),
+      ["Kontakt osoba", safe.name],
+      ["Telefon", safe.phone],
+      ["Email", safe.email],
+      ["Lokacija", safe.location],
+    ];
 
-    const adminHtml = `
-      <div style="font-family: Arial, Helvetica, sans-serif; color: #2b2b2b; line-height: 1.6;">
-        <h2 style="margin: 0 0 20px; color: #1f3d2b;">Novi upit sa sajta Kuća domaće hrane</h2>
-
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px;">
-          <tr>
-            <td style="padding: 10px 0; border-bottom: 1px solid #e5e0d8; width: 220px;"><strong>Naziv firme</strong></td>
-            <td style="padding: 10px 0; border-bottom: 1px solid #e5e0d8;">${safeFirma}</td>
-          </tr>
-          <tr>
-            <td style="padding: 10px 0; border-bottom: 1px solid #e5e0d8;"><strong>Kontakt osoba</strong></td>
-            <td style="padding: 10px 0; border-bottom: 1px solid #e5e0d8;">${safeIme}</td>
-          </tr>
-          <tr>
-            <td style="padding: 10px 0; border-bottom: 1px solid #e5e0d8;"><strong>Telefon</strong></td>
-            <td style="padding: 10px 0; border-bottom: 1px solid #e5e0d8;">${safeTelefon}</td>
-          </tr>
-          <tr>
-            <td style="padding: 10px 0; border-bottom: 1px solid #e5e0d8;"><strong>Email</strong></td>
-            <td style="padding: 10px 0; border-bottom: 1px solid #e5e0d8;">${safeEmail}</td>
-          </tr>
-          <tr>
-            <td style="padding: 10px 0; border-bottom: 1px solid #e5e0d8;"><strong>Lokacija</strong></td>
-            <td style="padding: 10px 0; border-bottom: 1px solid #e5e0d8;">${safeLokacija}</td>
-          </tr>
-          <tr>
-            <td style="padding: 10px 0; border-bottom: 1px solid #e5e0d8;"><strong>Broj zaposlenih</strong></td>
-            <td style="padding: 10px 0; border-bottom: 1px solid #e5e0d8;">${safeBrojZaposlenih}</td>
-          </tr>
-          <tr>
-            <td style="padding: 10px 0; border-bottom: 1px solid #e5e0d8;"><strong>Kada im treba usluga</strong></td>
-            <td style="padding: 10px 0; border-bottom: 1px solid #e5e0d8;">${safeKadaTreba}</td>
-          </tr>
-          <tr>
-            <td style="padding: 10px 0; border-bottom: 1px solid #e5e0d8;"><strong>Tip usluge</strong></td>
-            <td style="padding: 10px 0; border-bottom: 1px solid #e5e0d8;">${safeTipUsluge}</td>
-          </tr>
-          <tr>
-            <td style="padding: 10px 0; border-bottom: 1px solid #e5e0d8;"><strong>Trenutni model obroka</strong></td>
-            <td style="padding: 10px 0; border-bottom: 1px solid #e5e0d8;">${safeTrenutniModel}</td>
-          </tr>
-          <tr>
-            <td style="padding: 10px 0; border-bottom: 1px solid #e5e0d8;"><strong>Specifične potrebe</strong></td>
-            <td style="padding: 10px 0; border-bottom: 1px solid #e5e0d8;">${safePosebniRezim}</td>
-          </tr>
+    const html = `
+      <div style="font-family: Arial, Helvetica, sans-serif; color: #24382b; line-height: 1.55; max-width: 640px;">
+        <h1 style="margin: 0 0 16px; color: #143d2a; font-size: 24px;">Novi upit sa sajta Maka i Ika</h1>
+        <table style="width:100%; border-collapse:collapse; margin: 0 0 22px;">
+          ${rows.map(([label, value]) => `<tr><td style="padding:10px 0; width:42%; border-bottom:1px solid #e6dfd1; font-weight:700;">${label}</td><td style="padding:10px 0; border-bottom:1px solid #e6dfd1;">${value}</td></tr>`).join("")}
         </table>
-
-        <div style="margin-top: 24px;">
-          <p style="margin: 0 0 8px;"><strong>Poruka</strong></p>
-          <div style="padding: 14px 16px; background: #f8f5ef; border: 1px solid #e5e0d8; border-radius: 12px;">
-            ${safePoruka}
-          </div>
-        </div>
+        <p style="margin:0 0 7px; font-weight:700;">Poruka</p>
+        <div style="padding:14px 16px; background:#f9f4e9; border:1px solid #e4d8c4; border-radius:12px;">${safe.message}</div>
       </div>
     `;
 
-    const adminText = `
-Novi upit sa sajta Kuća domaće hrane
-
-Naziv firme: ${firma}
-Kontakt osoba: ${ime}
-Telefon: ${telefon}
-Email: ${email}
-Lokacija: ${lokacija}
-Broj zaposlenih: ${brojZaposlenih}
-Kada im treba usluga: ${kadaTreba}
-Tip usluge: ${tipUsluge}
-Trenutni model obroka: ${trenutniModel || "Nije navedeno"}
-Specifične potrebe: ${posebniRezimTekst}
-Poruka: ${poruka || "Nije navedeno"}
-    `.trim();
-
-    const adminResult = await resend.emails.send({
-      from: "Kuća domaće hrane <onboarding@resend.dev>",
-      to: "marinaprsic@gmail.com",
-      subject: `Novi upit sa sajta — ${firma}`,
-      html: adminHtml,
-      text: adminText,
+    const resend = new Resend(apiKey);
+    const from = process.env.RESEND_FROM_EMAIL || "Maka i Ika – domaća kuhinja <onboarding@resend.dev>";
+    const recipient = process.env.CONTACT_RECIPIENT_EMAIL || business.email;
+    const result = await resend.emails.send({
+      from,
+      to: recipient,
+      replyTo: email,
+      subject: `${safe.inquiryType} — ${name}`,
+      html,
+      text: `Novi upit sa sajta Maka i Ika\n\nVrsta upita: ${safe.inquiryType}\n${inquiryType === "firma" ? `Firma: ${company}\nBroj obroka: ${mealCount}\n` : ""}Kontakt osoba: ${name}\nTelefon: ${phone}\nEmail: ${email}\nLokacija: ${location}\nPoruka: ${message || "Nije navedeno"}`,
     });
 
-    console.log("ADMIN RESULT:", adminResult);
-
-    if (adminResult.error) {
-      console.error("ADMIN ERROR:", adminResult.error);
-
+    if (result.error) {
       return Response.json(
-        {
-          error:
-            "Došlo je do greške prilikom slanja upita. Molimo pokušajte ponovo ili nas kontaktirajte direktno putem telefona.",
-        },
-        { status: 500 }
+        { error: "Upit trenutno nije moguće poslati. Molimo pozovite nas direktno." },
+        { status: 502 }
       );
     }
 
     return Response.json({ success: true }, { status: 200 });
-  } catch (error) {
-    console.error("FATAL ERROR:", error);
-
+  } catch {
     return Response.json(
-      {
-        error:
-          "Došlo je do greške prilikom slanja upita. Molimo pokušajte ponovo ili nas kontaktirajte direktno putem telefona.",
-      },
+      { error: "Došlo je do greške pri slanju upita. Molimo pozovite nas direktno." },
       { status: 500 }
     );
   }
