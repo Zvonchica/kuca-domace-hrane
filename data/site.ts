@@ -171,7 +171,7 @@ export const possibleSideDishes = [
 export const saladsAndPeppers: Product[] = [
   { id: "kupus", name: "Kupus salata", quantity: "200 g", price: 210 },
   { id: "krompir-salata", name: "Krompir salata sa crnim lukom", quantity: "200 g", price: 260 },
-  { id: "sopska", name: "Šopska salata", quantity: "200 g", price: 380 },
+  { id: "sopska", name: "Šopska salata", quantity: "200 g", price: 390 },
   { id: "vitaminska", name: "Vitaminska salata", quantity: "200 g", price: 260 },
   { id: "belolucane", name: "Belolučane paprike", quantity: "2 kom", price: 440 },
   { id: "pecene-ljute", name: "Pečene ljute paprike sa belim lukom", quantity: "2 kom", price: 380 },
@@ -185,7 +185,7 @@ export const largerOrderGroups = [
       { id: "krompir-veca", name: "Krompir salata sa crnim lukom", options: [{ label: "200 g", price: 260 }, { label: "500 g", price: 650 }, { label: "1 kg", price: 1130 }] },
       { id: "cvekla-veca", name: "Salata od cvekle", options: [{ label: "200 g", price: 250 }, { label: "500 g", price: 600 }, { label: "1 kg", price: 1060 }] },
       { id: "srpska-veca", name: "Srpska salata", options: [{ label: "200 g", price: 360 }, { label: "500 g", price: 810 }, { label: "1 kg", price: 1500 }] },
-      { id: "sopska-veca", name: "Šopska salata", options: [{ label: "200 g", price: 380 }, { label: "500 g", price: 880 }, { label: "1 kg", price: 1650 }] },
+      { id: "sopska-veca", name: "Šopska salata", options: [{ label: "200 g", price: 390 }, { label: "500 g", price: 880 }, { label: "1 kg", price: 1650 }] },
       { id: "vitaminska-veca", name: "Vitaminska salata", options: [{ label: "200 g", price: 260 }, { label: "500 g", price: 650 }, { label: "1 kg", price: 1130 }] },
     ],
   },
